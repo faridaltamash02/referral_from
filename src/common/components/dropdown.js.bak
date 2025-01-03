@@ -1,0 +1,18 @@
+export default function Dropdown({options, onChange, name, onBlur}){
+    return(
+      <select 
+      onChange={onChange} 
+      onBlur={onBlur} 
+      name={name} 
+      className="nf-select" 
+      data-exclude-select2="true"
+  >
+      <option value="">Property State</option>
+      {options.map((state) => (
+          <option key={state.id} value={state.stateName}>
+              {state.stateName}
+          </option>
+      ))}
+  </select>
+    )
+}
