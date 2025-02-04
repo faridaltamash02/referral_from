@@ -59,12 +59,18 @@ function OtpForm({onValueChange, formData, isExpired}) {
       setisResendBtnDisabled(false);
   }
   
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const resendOtp = (e) => {
     e.preventDefault();
-    let allFieldPresent = Object.values(formData).every((value) => value !== '');
+    const phoneNumberValue = phoneNumber.replace(/\D/g, "");
+    console.log(allFieldPresent+"OTP");
+    let allFieldPresent = Object.values(formData).every((value) => value !== '') && isValidEmail(formData.emailId) && phoneNumberValue.length == 10;
     if (allFieldPresent) {
-      const phoneNumberValue = phoneNumber.replace(/\D/g, "");
+      
       apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
         console.log(response);
         if (!response.data.error) {
@@ -142,8 +148,9 @@ function OtpForm({onValueChange, formData, isExpired}) {
   };
 
   return (
-    <div className="flex gap30 ">
-      <div className="form-group flex alignE">
+    <div>
+      <div className="flex gap15 pos-rel">
+        <div className="form-group flex alignE">
           <input
             className="nf-control"
             type="text"
@@ -151,25 +158,25 @@ function OtpForm({onValueChange, formData, isExpired}) {
             name="verification"
             placeholder="Enter verification code"
             value={formData.verification}
-              onChange={handleChange}
+            onChange={handleChange}
             required
           />
-        {isOtpVerified &&<div className="flex"><img decoding="async" src="https://staging.newfi.com/wp-content/uploads/2023/10/download.png" /><span className="fs12s">Verified</span></div>}
-        <div className="nf-error-text">{errorMessages}</div>
-      </div>
-    {!isOtpVerified && <div className='flex alignC justifyC gap15'> 
-      <div>
-        <button className="nf-btn nf-btn-priamry sm" type="submit" disabled={isVerifyBtnDisabled} onClick={handleSubmit} >Verify Code</button>
-      </div>
-      <div>
-      <div className="pos-rel"><button className="nf-btn nf-btn-priamry sm" onClick={resendOtp} disabled={isResendBtnDisabled}>Resend verfication code</button>
-        {((timer > 0 || !isVerifyBtnDisabled) && timer != 0) && <div className="nf-error-text">{timer} seconds</div>}
-      </div>
-    </div>
-    </div>
-    }
+          {isOtpVerified && <div className="flex"><img decoding="async" src="https://staging.newfi.com/wp-content/uploads/2023/10/download.png" /><span className="fs12s">Verified</span></div>}
 
-   
+        </div>
+        {!isOtpVerified && <div className='flex alignC justifyC gap15'>
+          <div>
+            <button className="nf-btn nf-btn-priamry sm" type="submit" disabled={isVerifyBtnDisabled} onClick={handleSubmit} >Verify Code</button>
+          </div>
+          <div>
+            <div className="pos-rel"><button className="nf-btn nf-btn-priamry sm" onClick={resendOtp} disabled={isResendBtnDisabled}>Resend verfication code</button>
+              {((timer > 0 || !isVerifyBtnDisabled) && timer != 0) && <div className="nf-error-text textE w-100">{timer} seconds</div>}
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      <div className="nf-error-text">{errorMessages}</div>
   </div>
   );
 }

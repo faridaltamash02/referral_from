@@ -29,6 +29,20 @@ export default class Util{
         return formattedNumber;
       };
       
-      
+      formatCurrency(housePrice) {
+        const numericValue = housePrice.replace(/[^0-9]/g, '');
+        if (!numericValue) {  // Handles empty string or NaN resulting from parseInt("")
+           return '';
+        }
+        const formatter = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        });
+        return formatter.format(numericValue); // No need for parseInt; numericValue is now always a valid numeric string or empty
+    }
+    
+  
 
 }

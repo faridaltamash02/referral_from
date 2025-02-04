@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import './index.css';
 import GetStartedForm from './component/get-started-form';
 import EquityChoiceForm from './component/equitychoice-form';
+import RefinaceForm from './component/refinace-form';
 import {LoaderProvider, useLoader} from './common/services/context/loadingContext';
 
 
@@ -12,7 +13,8 @@ import {LoaderProvider, useLoader} from './common/services/context/loadingContex
 // root.render(
 //   <React.StrictMode>
 //     <LoaderProvider>
-//       <GetStartedForm />
+//       {/* <EquityChoiceForm /> */}
+//       <RefinaceForm loanType="purchase" />
 //     </LoaderProvider>
 //   </React.StrictMode>
 // );
@@ -28,9 +30,11 @@ reactRoots.forEach((container, index) => {
     root.render(<StrictMode><LoaderProvider><GetStartedForm key={index}/></LoaderProvider></StrictMode>);
   } else if (component == 'equityChoice') {
       root.render(<StrictMode><LoaderProvider><EquityChoiceForm key={index}/></LoaderProvider></StrictMode>);
-  } else {
-      root.render(<StrictMode><LoaderProvider><GetStartedForm key={index}/></LoaderProvider></StrictMode>);
-  }
+  } else if (component == 'refinance') {
+      root.render(<StrictMode><LoaderProvider><RefinaceForm loanType="savings" key={index}/></LoaderProvider></StrictMode>);
+  }else if (component == 'purchase') {
+    root.render(<StrictMode><LoaderProvider><RefinaceForm loanType="purchase" key={index}/></LoaderProvider></StrictMode>);
+}
 });
 
 

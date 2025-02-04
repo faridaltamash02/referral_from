@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import OtpForm from './otp-form';
 import CommonConstants from '../common/constants';
-import Dropdown from '../common/components/dropdown';
 import Util from '../common/util';
 import GaConnector from '../common/components/ga-connector';
 import apiService from '../common/services/apiService';
 import OverlayLoader from '../common/components/loader';
+import Consent from './consent';
+
 
 
 
@@ -16,40 +17,51 @@ function GetStartedForm() {
     phoneNumber: '',
     emailId: '',
     referralPropertyState: '',
-    // userRole: {
-    //   "roleDescription": "Borrower"
-    // }
   });
   const [isSubmitBtnsEnabled, setIsSubmitBtnEnabled] = useState(false);
   const [errors, setErrors] = useState({ name: '', email: '' })
   const [allfieldValid, setAllFieldValid] = useState(false);
   const [respErrorMsg, setRespErrorMsg] = useState('');
-  
+
   const [prevFormData, setPrevFormData] = useState(null);
   const [otpKey, setOtpKey] = useState(0); // Key for OtpForm component
   const util = new Util();
   const [user, setUser] = useState({});
   const [isOtpEnabled, setIsOtpEnabled] = useState(false);
   const [otpFieldVal, setOtpFieldVal] = useState('');
-  
+
   const [stateList, setStateList] = useState([]);
   const constants = new CommonConstants();
-  const [isDropdownVisible, setIsDropdownVisible] = useState(true); // New state
 
-  const handleDropdownFocus = () => {
-    setIsDropdownVisible(true);
-  };
 
 
   useEffect(() => {
     //to fetch approved states states == to uncoment once merged in newfi site
     // fetch('https://uat.newfi.com/rest/states/newfi_approved_states')
-    apiService.get('/rest/states/newfi_approved_states').then(response => {
-      if(!response.error){
-        if(response?.data?.resultObject)
-          setStateList(response?.data?.resultObject);
-      }
-    }).catch(error => { console.error('There was an error!', error); });
+    console.log(1234214);
+    // fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states').then(response => {
+    //   console.log(response);
+    //   console.log(response?.data);
+    //   // if (!response.error) {
+    //   //   if (response?.data?.resultObject)
+    //   //     setStateList(response?.data?.resultObject);
+    //   // }
+    // }).catch(error => { console.error('There was an error!', error); });
+    fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Parse the JSON from the response
+    })
+    .then(data => {
+        console.log(data); // This should log your JSON data
+        setStateList(data);
+    })
+    .catch(error => {
+        console.error('There was an error!', error);
+    });
+
   }, [])
 
   const enableSubmitButton = (value, optValue) => {
@@ -60,37 +72,39 @@ function GetStartedForm() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     //format teh phone input
-    if(e.target.name == 'phoneNumber'){
+    if (e.target.name == 'phoneNumber') {
       setFormData({ ...formData, [e.target.name]: util.formatPhoneNumber(e.target.value) });
     }
   };
 
   const handleValidation = (e) => {
-     //email validation
-    const {name, value} = e.target;
+    //email validation
+    const { name, value } = e.target;
     let errorMessage = {};
-    if(name === 'emailId'){
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
+    if (name === 'emailId') {
+      errorMessage = util.validateEmail(value) ? '' : 'Please enter a valid email address.';
       setErrors((prevErrors) => ({ ...prevErrors, email: util.validateEmail(e.target.value) ? '' : 'Please enter a valid email address.', }));
     }
-    if(name === 'phoneNumber'){ 
-      console.log(e.target.value.length)
-      //validate field is not empty and length is 12
-      errorMessage = (e.target.value.length < 14)? `Please enter valid 10 digit phone number.`:'';
+    if (name === 'phoneNumber') {
+      const numericPhoneNumber = value.replace(/\D/g, ''); // Remove non-digits
+      if (numericPhoneNumber.length !== 10) {
+        errorMessage = 'Please enter a valid 10-digit phone number.';
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+      }
+    }
+
+    if (name === 'referralPropertyState') {
+      errorMessage = (e.target.value.toLowerCase() == '') ? `Please select property state.` : '';
       setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
     }
 
-    if(name === 'referralPropertyState'){
-      setIsDropdownVisible(false);  // Or keep it visible if needed
-      errorMessage = (e.target.value.toLowerCase() == '')? `Please select property state.`: '';
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
-    }
-    
     //validate firstname and last name
-    if(name === 'firstName' || name === 'lastName'){
+    if (name === 'firstName' || name === 'lastName') {
       // change to camel case
       const camelCaseName = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
       setFormData((prevData) => ({ ...prevData, [name]: camelCaseName }));
-      errorMessage = util.validateName(camelCaseName)? '' : `Please enter a valid ${name}.`;
+      errorMessage = util.validateName(camelCaseName) ? '' : `Please enter a valid ${name}.`;
       setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
     }
     const allFieldPresent = Object.values(formData).every((value) => value !== '');
@@ -103,11 +117,12 @@ function GetStartedForm() {
   const handleOTPGeneration = () => {
     setRespErrorMsg('');
     const { phoneNumber, emailId } = formData;
-    
-    //get otp and enable otp fields
-    
+
+    //validate email and the phoneNumebr
+    const emailValidation = util.validateEmail(emailId);
+    const phoneNumberValidation = phoneNumber.replace(/\D/g, '').length === 10;
     // Check if either phone number or email is present and if they have changed
-    const shouldGetOTP = (phoneNumber || emailId) && (
+    const shouldGetOTP = (phoneNumber && emailId) && (emailValidation && phoneNumberValidation) && (
       phoneNumber !== prevFormData?.phoneNumber ||
       emailId !== prevFormData?.emailId
     );
@@ -142,11 +157,11 @@ function GetStartedForm() {
           }
         }
       });
-      
-    }  
+
+    }
   }
 
-  const handleGaConnectorUpdate = (data)=>{
+  const handleGaConnectorUpdate = (data) => {
     //update GA connector data
     setUser((prevUser) => ({
       ...prevUser,
@@ -161,10 +176,10 @@ function GetStartedForm() {
     let btnText = e.target.name;
     // Here you would typically make an API call to save the data
     console.log('Form data submitted:', formData);
-    let LoanAppFormVO=new Object();
+    let LoanAppFormVO = new Object();
     let loan = new Object();
     let loanType = new Object();
-    
+
     LoanAppFormVO.user = {
       "firstName": formData.firstName,
       "lastName": formData.lastName,
@@ -177,23 +192,24 @@ function GetStartedForm() {
     LoanAppFormVO.user.gaConnector = user.gaConnector;
     LoanAppFormVO.referralPropertyState = formData.referralPropertyState;
     LoanAppFormVO.leadSource = "Newfi Website";
-    const {leadPurpose, loanManagerEmail} = constants.getLoanType(btnText);
-    loanType.loanTypeCd =   
-    LoanAppFormVO.loanManagerEmail = loanManagerEmail;
+    const { leadPurpose, loanManagerEmail } = constants.getLoanType(btnText);
+    loanType.loanTypeCd = leadPurpose;
+    if (loanManagerEmail)
+      LoanAppFormVO.loanManagerEmail = loanManagerEmail;
     LoanAppFormVO.loanType = loanType;
     LoanAppFormVO.user.isGAConnector = true;;
     LoanAppFormVO.otp = otpFieldVal;
     LoanAppFormVO.isLeadFromNewfiWebsite = true;
-    LoanAppFormVO.loan = loan;
+    // LoanAppFormVO.loan = loan;
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
     //api call create lead : rest/leadSource/newfiWebsiteLeadDetails
-    apiService.post('/rest/leadSource/newfiWebsiteLeadDetails', reqData, {headers: { 'Content-Type': 'multipart/form-data', }, cache: 'no-cache'}).then((response) => {
+    apiService.post('/rest/leadSource/newfiWebsiteLeadDetails', reqData, { headers: { 'Content-Type': 'multipart/form-data', }, cache: 'no-cache' }).then((response) => {
       let data = response.data;
       let loanTypeCd = LoanAppFormVO.loanType.loanTypeCd;
       if (data.resultObject !== null && data.resultObject !== "Failure") {
         let envUrl = data.resultObject.url.replace(/(loancenter\/)/, '');
-    
+
         if ((data.resultObject.duplicateAccount != undefined && data.resultObject.duplicateLead != undefined) && (data.resultObject.duplicateAccount == true || data.resultObject.duplicateLead == true)) {
           window.setTimeout(() => {
             if (data.resultObject.duplicateAccount == true && (data.resultObject.duplicateLead != undefined && data.resultObject.duplicateLead == true)) {
@@ -204,10 +220,10 @@ function GetStartedForm() {
               } else if (LoanAppFormVO.loanType.loanTypeCd == 'REFNSAM') {
                 window.location.href = envUrl + "equitychoice/#/" + data.resultObject.crmId + "/";
               } else {
-                window.location.href = envUrl + "savingss/#/" + data.resultObject.crmId + "/";
+                window.location.href = envUrl + "savings/#/" + data.resultObject.crmId + "/";
               }
             }
-      
+
           }, 5000);
         } else if (data.resultObject.otpStatus == 'FAILED' && data.resultObject.message == 'Duplicate Lead') {
           let redirectUrl;
@@ -219,7 +235,7 @@ function GetStartedForm() {
           } else if (loanTypeCd === "REFNSAM") {
             redirectUrl = `${envUrl}equitychoice/#/${data.resultObject.crmId}/`;
           } else {
-            redirectUrl = `${envUrl}savingss/#/${data.resultObject.crmId}/`;
+            redirectUrl = `${envUrl}savings/#/${data.resultObject.crmId}/`;
           }
           window.location.href = redirectUrl;
         } else {
@@ -228,12 +244,12 @@ function GetStartedForm() {
           } else if (LoanAppFormVO.loanType.loanTypeCd == 'REFNSAM') {
             window.location.href = envUrl + "equitychoice/#/" + data.resultObject.crmId + "/";
           } else {
-            window.location.href = envUrl + "savingss/#/" + data.resultObject.crmId + "/";
+            window.location.href = envUrl + "savings/#/" + data.resultObject.crmId + "/";
           }
-      
+
         }
       } else {
-    
+
         if (data.error.message === "Invalid OTP, Please Enter Valid OTP") {
           setRespErrorMsg("Please enter valid verification code");
         } else if (["400", "Invalid email"].includes(data.error.code) || data.error.message.toLowerCase() === "invalid email") {
@@ -241,44 +257,23 @@ function GetStartedForm() {
           redirectTo404();
         } else if (data.error.message === "OTP Expired") {
           setRespErrorMsg("Verification code expired. Please generate again");
-          
-    
           // disable  submit buttons
           setIsSubmitBtnEnabled(false);
-    
-         //enable OTP Section
+          //enable OTP Section
           setIsOtpEnabled(true);
-          // OtpButton.style.display = "block";
-          // verifyOtpButton.style.display = "block";
-          // $(".fluentform").find(".help-message").remove();
-          // verifiedtext.style.display = "none";
-          // verifyOtpButton.setAttribute("disabled", "");
-          // OtpButton.removeAttribute("disabled", "");
         } else if (data.error.message.toLowerCase() === "limit exceeded") {
           redirectTo404();
         } else {
           setRespErrorMsg(data.error.message);
-          // $(".networkErrorMsg").hide();
-          // OtpButton.style.display = "block";
-          // verifyOtpButton.style.display = "block";
-    
           //enable OTP Section
           setIsOtpEnabled(true);
-    
+
           // disable  submit buttons
           setIsSubmitBtnEnabled(false);
-          // if (savingsButton) {
-          //   refinanceButton.setAttribute("disabled", "");
-          //   savingsButton.setAttribute("disabled", "");
-          // }
-    
-          // if (referalButton) {
-          //   referalButton.setAttribute("disabled", "");
-          // }
         }
       }
     }).catch(error => { console.error('There was an error!', error); });
-    
+
   };
 
   const redirectTo404 = () => {
@@ -289,92 +284,106 @@ function GetStartedForm() {
 
   return (
     <div>
-      <OverlayLoader/>
+      <OverlayLoader />
       <form className="get-started-form">
-      <div className="flex gap15">
-        <div className="form-group w-50">
-          <input tabIndex={1}
-            className="nf-control"
-            type="text"
-            id="firstName"
-            name="firstName"
-            placeholder="First Name"
-            value={formData.firstName}
-            onBlur={handleValidation}
-            onChange={handleChange}
-            required
-          />
-          {errors.firstName && <p className='nf-error-text'>{errors.firstName}</p>}
+        <div className="flex gap15">
+          <div className="form-group w-50">
+            <input
+              className="nf-control"
+              type="text"
+              id="firstName"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onBlur={handleValidation}
+              onChange={handleChange}
+              required
+            />
+            {errors.firstName && <p className='nf-error-text'>{errors.firstName}</p>}
 
+          </div>
+          <div className="form-group w-50">
+            <input
+              className="nf-control"
+              type="text"
+              id="lastName"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onBlur={handleValidation}
+              onChange={handleChange}
+              required
+            />
+            {errors.lastName && <p className='nf-error-text'>{errors.lastName}</p>}
+          </div>
+        </div>
+
+        <div className="flex gap15">
+          <div className="form-group w-50 dropdown-container">
+            {/* <Dropdown tabIndex={3} name="referralPropertyState" options={stateList} onChange={handleChange} onBlur={handleValidation}
+          onFocus={handleDropdownFocus}  // Add onFocus
+          /> */}
+            <select
+              onChange={handleChange}
+              onBlur={handleValidation}
+              name="referralPropertyState"
+              className="nf-select nf-form-select"
+              data-exclude-select2="true"
+            >
+              <option value="" disabled selected>Property State</option>
+              {stateList.map((state) => (
+                <option key={state.id} value={state.stateName}>
+                  {state.stateName}
+                </option>
+              ))}
+            </select>
+            {errors.referralPropertyState && <p className='nf-error-text'>{errors.referralPropertyState}</p>}
+          </div>
+          <div className="form-group w-50">
+            <input
+              className="nf-control"
+              type="email"
+              id="emailId"
+              name="emailId"
+              placeholder="Email"
+              value={formData.email}
+              onBlur={handleValidation}
+              onChange={handleChange}
+              required
+            />
+            {errors.email && <p className='nf-error-text'>{errors.email}</p>}
+          </div>
         </div>
         <div className="form-group w-50">
-          <input tabIndex={2}
+          <input
             className="nf-control"
             type="text"
-            id="lastName"
-            name="lastName"
-            placeholder="Last Name"
-            value={formData.lastName}
-            onBlur={handleValidation}
+            id="phoneNumber"
+            name="phoneNumber"
+            placeholder="Primary Phone"
+            value={formData.phoneNumber}
             onChange={handleChange}
+            onBlur={handleValidation}
+            maxLength="14"
             required
           />
-          {errors.lastName && <p className='nf-error-text'>{errors.lastName}</p>}
+          {errors.phoneNumber && <p className='nf-error-text' >{errors.phoneNumber}</p>}
         </div>
-      </div>
-      
-      <div className="flex gap15">
-        <div className="form-group w-50">
-          <Dropdown tabIndex={3} name="referralPropertyState" options={stateList} onChange={handleChange} onBlur={handleValidation}
-          onFocus={handleDropdownFocus}  // Add onFocus
-          />
-        {errors.referralPropertyState && <p className='nf-error-text'>{errors.referralPropertyState}</p>}
+
+        {
+          (allfieldValid || isOtpEnabled) && <OtpForm key={otpKey} isExpired={isOtpEnabled} formData={formData} onValueChange={enableSubmitButton} />
+        }
+        {respErrorMsg && <div className="nf-error-common">{respErrorMsg}</div>}
+        <div className="flex alignC gap15 justifySB mT40">
+          <button className="nf-btn nf-btn-priamry" type="submit" id='purchase' name='purchase' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>I'm Buying A Home</button>
+          <button className="nf-btn nf-btn-priamry" type="submit" id='refinance' name='refinance' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>I'm Refinancing My Home</button>
         </div>
-        <div className="form-group w-50">
-        <input tabIndex={4}
-          className="nf-control"
-          type="text"
-          id="phoneNumber"
-          name="phoneNumber"
-          placeholder="Primary Phone"
-          value={formData.phoneNumber}
-          onChange={handleChange}
-          onBlur={handleValidation}
-          maxLength="14"
-          required
-        />
-         {errors.phoneNumber && <p className='nf-error-text' >{errors.phoneNumber}</p>}
-      </div>
-      
-      </div>
-      <div className="form-group w-50">
-        <input tabIndex={5}
-          className="nf-control"
-          type="email"
-          id="emailId"
-          name="emailId"
-          placeholder="Email"
-          value={formData.email}
-          onBlur={handleValidation}
-          onChange={handleChange}
-          required
-        />
-        {errors.email && <p className='nf-error-text'>{errors.email}</p>}
-      </div>
-      
-      {
-        (allfieldValid || isOtpEnabled) && <OtpForm key={otpKey} isExpired={isOtpEnabled} formData={formData} onValueChange={enableSubmitButton}/>
-      }
-      { respErrorMsg && <div className="nf-error-common">{respErrorMsg}</div>}
-      <div className="flex alignC gap15 justifySB mT40">
-      <button className="nf-btn nf-btn-priamry" type="submit" id='purchase' name='purchase' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>I'm Buying A Home</button>
-      <button className="nf-btn nf-btn-priamry" type="submit" id='refinance' name='refinance' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>I'm Refinancing My Home</button>
-      </div>
-      <GaConnector onUpdate={handleGaConnectorUpdate}/>
-    </form>
-    
+        <GaConnector onUpdate={handleGaConnectorUpdate} />
+        <Consent/>
+      </form>
+        
     </div>
-    
+
   );
 }
 
