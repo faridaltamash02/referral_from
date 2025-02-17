@@ -1,70 +1,113 @@
 import React, { useState, useEffect } from 'react';
 import Util from '../common/util';
-const Dashboard = () =>{
+import DeleteInfoDialog from '../common/components/deleteinfoDialog';
+
+const Dashboard = () => {
   const [userLists, setUserLists] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const util = new Util();
-    useEffect(() => {
-        //getUsers
-        fetch('http://localhost/wordpress/wp-json/newfi/v1/getUsers')
-        .then(response => {
-          if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-          return response.json();
-        })
-          .then(result => {
-            console.log(result);
-            setUserLists(result);
-          }).catch((error) => {
-            console.error('There was an error!', error);
-          })
-      },[])
-    return(
-        <div>
-        <p> List of Users </p>
-          <table className="nf-table w-fit">
-            <thead>
-              <tr className="flex justifySB alignC">
-                <th className="textC p10">Name</th>
-                <th className="textC p10">Phone Number</th>
-                <th className="textC p10">Email</th>
-                <th className="textC p10">Location</th>
-                <th className="textC p10">URL</th>
-                <th className="textC p10">UTM Source</th>
-                <th className="textC p10">UTM Medium</th>
-                <th className="textC p10">UTM compaign</th>
-                <th className="textC p10">UTM Term</th>
-                <th className="textC p10">Compaign Time</th>
-                <th className="textC p10">GAD_Source</th>
-                <th className="textC p10">Gclid</th>
-                <th className="textC p10">GAD_Source</th>
-                <th className="textC p10">Ip Address</th>
-                <th className="textC p10">Created At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userLists.map((row, index) => (
-                  <tr className="flex justifySB alignC" key={index}>
-                    <td className="textC p10">{row.first_name} {row.last_name}</td>
-                    <td className="textC p10">{row.phone_number}</td>
-                    <td className="textC p10">{row.email_id}</td>
-                    <td className="textC p10">{row.city}, {row.state}, {row.country}</td>
-                    <td className="textC p10">{row.url}</td> 
-                    <td className="textC p10">{row.utm_source}</td>
-                    <td className="textC p10">{row.utm_medium}</td>
-                    <td className="textC p10">{row.utm_campaign}</td>
-                    <td className="textC p10">{row.utm_term}</td>
-                    <td className="textC p10">{row.campaign_type}</td>
-                    <td className="textC p10">{row.gad_source}</td>
-                    <td className="textC p10">{row.gclid}</td>
-                    <td className="textC p10">{row.ip_address}</td>
-                    <td className="textC p10">{util.formatDate(row.created_at)}</td>
-                </tr>
-              ))
-            } 
-            </tbody>
-        </table>
-        </div>
-    )
-}
+
+  const formatPhoneNumber = (phoneNumber) => {
+    const phoneNumberStr = phoneNumber.replace(/\D/g, ''); // Remove non-numeric characters
+    const match = phoneNumberStr.match(/^(\d{3})(\d{3})(\d{4})$/); // Match the US phone number format
+
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+
+    return phoneNumber; 
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+  useEffect(() => {
+    //getUsers
+    fetch('https://staging.newfi.com/wp-json/newfi/v1/getUsers')
+    .then(response => {
+      if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+      return response.json();
+    })
+      .then(result => {
+        setUserLists(result);
+        setIsModalOpen(true); //modal opening
+
+      }).catch((error) => {
+        console.error('There was an error!', error);
+      })
+  },[])
+
+  return (
+    <div>
+ <div className="table-container">
+    <table className="nf-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone Number</th>
+          <th>Email</th>
+          <th>Location</th>
+          <th>URL</th>
+          <th>UTM Source</th>
+          <th>UTM Medium</th>
+          <th>UTM Campaign</th>
+          <th>UTM Term</th>
+          <th>Campaign Type</th>
+          <th>GAD Source</th>
+          <th>Gclid</th>
+          <th>IP Address</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {userLists.map((row, index) => (
+          <tr key={index}>
+            <td>{row.first_name} {row.last_name}</td>
+            
+            <td>
+              <a className='noUnderline' href={`tel:${row.phone_number}`} target="_blank" rel="noopener noreferrer">
+              {formatPhoneNumber(row.phone_number)}
+                </a>
+            </td>
+            <td>
+              <a href={`mailto:${row.email_id}`} target="_blank" rel="noopener noreferrer">
+              {row.email_id}
+                </a>
+            </td>
+
+            <td>
+              { (row.city || row.state || row.country) ? 
+                (row.city ? row.city + ', ' : '') + 
+                (row.state ? row.state + ', ' : '') + 
+                (row.country ? row.country : '') 
+                : 'NA' }
+            </td>
+            <td>
+              <a title={row.url} href={row.url} target="_blank" rel="noopener noreferrer">
+                {row.url}
+              </a>
+            </td>
+            <td>{row.utm_source || 'N/A'}</td>
+            <td>{row.utm_medium || 'N/A'}</td>
+            <td>{row.utm_campaign || 'N/A'}</td>
+            <td>{row.utm_term || 'N/A'}</td>
+            <td>{row.campaign_type || 'N/A'}</td>
+            <td>{row.gad_source || 'N/A'}</td>
+            <td title={row.gclid}>{row.gclid || 'N/A'}</td>
+            <td>{row.ip_address}</td>
+            <td>{util.formatDate(row.created_at)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <DeleteInfoDialog isOpen={isModalOpen} onClose={closeModal} />
+  </div>
+    <p className='deleteInfo'>*User details will be permanently deleted 15 days after the date of creation.</p>
+  </div>
+   
+  
+  );
+};
+
 export default Dashboard;
