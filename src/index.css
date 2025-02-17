@@ -465,3 +465,201 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
   }
   .sm-mT5{margin-top: 5px !important;}
 }
+/* new css */
+.table-container {
+  max-height: 90vh; /* Adjust height as needed */
+  max-width: 100%;
+  overflow: auto;
+  outline: 1px solid #ddd;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Table styles inside .table-container */
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th {
+  border: 1px solid #e3e1e1;
+  padding: 8px;
+  text-align: left;
+  white-space: nowrap; /* Prevents text wrapping in headers */
+}
+
+/* Table styling for .nf-table inside .table-container */
+.table-container .nf-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Table header for .nf-table inside .table-container */
+.table-container .nf-table th {
+  background-color: #bed0eb;
+  color: black;
+  padding: 12px 15px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  white-space: nowrap; /* Prevents text from wrapping */
+}
+
+/* Table cells for .nf-table inside .table-container */
+.table-container .nf-table th,
+.table-container .nf-table td {
+  border: 1px solid #e3e1e1;
+  padding: 12px 15px;
+  text-align: center;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  font-family: 'Atlassian Sans';
+  font-size: 14px;
+}
+
+.table-container th {
+  background: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+/* Sticky First Name Column for .nf-table inside .table-container */
+.table-container .nf-table td:first-child {
+  position: sticky;
+  left: 0;
+  background: rgb(216, 225, 245);
+  z-index: 3;
+  outline: 1px solid #b8b5b5;
+}
+
+.table-container .nf-table th:first-child {
+  position: sticky;
+  left: 0;
+  background: #b7cceb;
+  z-index: 13;
+  
+}
+
+/* Min-width for specific columns in .nf-table inside .table-container */
+.table-container .nf-table th:nth-child(5),
+.table-container .nf-table th:nth-child(13),
+.table-container .nf-table th:nth-child(14),
+.table-container .nf-table th:nth-child(3),
+.table-container .nf-table th:nth-child(4) {
+  min-width: 200px;
+  max-width: 200px;
+}
+
+.table-container .nf-table td:nth-child(5),
+.table-container .nf-table td:nth-child(12) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  padding: 20px 15px;
+  width: 200px;
+  border-bottom: 0px;
+  border-left: 0px;
+  border-right: 0px;
+}
+
+/* Min-width for specific columns inside .nf-table in .table-container */
+.table-container .nf-table th:nth-child(1),
+.table-container .nf-table th:nth-child(2) {
+  min-width: 140px;
+}
+.noUnderline{text-decoration: none;}
+
+/* dialog css */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(58, 57, 57, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-overlay .modal {
+  background: white;
+  border-radius: 4px;
+  padding: 16px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid #e3e1e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Atlassian Sans', sans-serif;
+}
+
+.modal-overlay .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e3e1e1;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.modal-overlay .modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-overlay .close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-overlay .close-btn:hover {
+  color: #000;
+}
+
+.modal-overlay .modal-body {
+  margin: 10px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+  text-align: center;
+}
+
+.modal-overlay .modal-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+}
+
+.modal-overlay .ok-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: 1px solid #4CAF50;
+  padding: 8px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Atlassian Sans', sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+.modal-overlay .ok-btn:hover {
+  background-color: #45a049;
+  border-color: #45a049;
+}
+
+.modal-overlay .ok-btn:focus {
+  outline: none;
+}
+.deleteInfo{font-size: 16px; color: #000; font-weight: 700; margin-bottom: 10px;}
