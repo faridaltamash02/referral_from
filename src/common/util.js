@@ -42,7 +42,9 @@ export default class Util{
         });
         return formatter.format(numericValue); // No need for parseInt; numericValue is now always a valid numeric string or empty
     }
-    
-  
 
+    formatDate = (dateString) => {
+      const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      return new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
+    };
 }

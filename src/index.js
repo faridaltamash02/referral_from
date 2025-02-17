@@ -6,7 +6,7 @@ import GetStartedForm from './component/get-started-form';
 import EquityChoiceForm from './component/equitychoice-form';
 import RefinaceForm from './component/refinace-form';
 import {LoaderProvider, useLoader} from './common/services/context/loadingContext';
-
+import Dashboard from './component/dashboard';
 
 
 // const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -14,7 +14,7 @@ import {LoaderProvider, useLoader} from './common/services/context/loadingContex
 //   <React.StrictMode>
 //     <LoaderProvider>
 //       {/* <EquityChoiceForm /> */}
-//       <RefinaceForm loanType="purchase" />
+//       <GetStartedForm/>
 //     </LoaderProvider>
 //   </React.StrictMode>
 // );
@@ -34,7 +34,9 @@ reactRoots.forEach((container, index) => {
       root.render(<StrictMode><LoaderProvider><RefinaceForm loanType="savings" key={index}/></LoaderProvider></StrictMode>);
   }else if (component == 'purchase') {
     root.render(<StrictMode><LoaderProvider><RefinaceForm loanType="purchase" key={index}/></LoaderProvider></StrictMode>);
-}
+  }else if(component == 'dashboard'){
+    root.render(<StrictMode><LoaderProvider><Dashboard/></LoaderProvider></StrictMode>);
+  }
 });
 
 

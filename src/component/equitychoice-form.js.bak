@@ -251,8 +251,8 @@ function EquityChoiceForm() {
   return (
     <div>
       <form className="get-started-form">
-        <div className="flex gap15 sm-gap0 sm-flexW">
-          <div className="form-group w-50 sm-w-100">
+        <div className="flex gap15">
+          <div className="form-group w-50">
             <input
               className="nf-control"
               type="text"
@@ -267,7 +267,7 @@ function EquityChoiceForm() {
             {errors.firstName && <p className='nf-error-text'>{errors.firstName}</p>}
 
           </div>
-          <div className="form-group w-50 sm-w-100">
+          <div className="form-group w-50">
             <input
               className="nf-control"
               type="text"
@@ -283,8 +283,8 @@ function EquityChoiceForm() {
           </div>
         </div>
         
-        <div className="flex gap15 sm-gap0 sm-flexW">
-          <div className="form-group w-50 sm-w-100 dropdown-container">
+        <div className="flex gap15">
+          <div className="form-group w-50 dropdown-container">
           <select
               onChange={handleChange}
               onBlur={handleValidation}
@@ -301,7 +301,7 @@ function EquityChoiceForm() {
             </select>
             {errors.referralPropertyState && <p className='nf-error-text'>{errors.referralPropertyState}</p>}
           </div>
-          <div className="form-group w-50 sm-w-100">
+          <div className="form-group w-50">
             <input
               className="nf-control"
               type="email"
@@ -316,8 +316,8 @@ function EquityChoiceForm() {
             {errors.email && <p className='nf-error-text'>{errors.email}</p>}
           </div>
         </div>
-        <div className='flex gap15 sm-gap0 sm-flexW'>
-          <div className="form-group w-50 sm-w-100">
+        <div className='flex gap15'>
+          <div className="form-group w-50">
             <input
               className="nf-control"
               type="text"
@@ -332,7 +332,7 @@ function EquityChoiceForm() {
             />
             {errors.housePrice && <p className='nf-error-text'>{errors.housePrice}</p>}
           </div>
-          <div className="form-group w-50 sm-w-100">
+          <div className="form-group w-50">
             <input
               className="nf-control"
               type="text"

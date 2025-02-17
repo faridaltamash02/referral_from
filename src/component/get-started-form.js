@@ -6,6 +6,8 @@ import GaConnector from '../common/components/ga-connector';
 import apiService from '../common/services/apiService';
 import OverlayLoader from '../common/components/loader';
 import Consent from './consent';
+import ReCAPTCHA from 'react-google-recaptcha';
+import axios from 'axios';
 
 
 
@@ -18,10 +20,12 @@ function GetStartedForm() {
     emailId: '',
     referralPropertyState: '',
   });
+  const [recaptcha, setRecaptcha] = useState('');
   const [isSubmitBtnsEnabled, setIsSubmitBtnEnabled] = useState(false);
   const [errors, setErrors] = useState({ name: '', email: '' })
   const [allfieldValid, setAllFieldValid] = useState(false);
   const [respErrorMsg, setRespErrorMsg] = useState('');
+  const secKey = process.env.REACT_APP_RECAPTCHA_SECRET;
 
   const [prevFormData, setPrevFormData] = useState(null);
   const [otpKey, setOtpKey] = useState(0); // Key for OtpForm component
@@ -31,37 +35,50 @@ function GetStartedForm() {
   const [otpFieldVal, setOtpFieldVal] = useState('');
 
   const [stateList, setStateList] = useState([]);
+  
   const constants = new CommonConstants();
-
-
+  const [clientState, setclientState] = useState('');
+  const [clientCity, setclientCity] = useState('');
+  const [clientCountry, setclientCountry] = useState('');
+  const [lat, setlat] = useState('');
+  const [lon, setlon] = useState('');
 
   useEffect(() => {
     //to fetch approved states states == to uncoment once merged in newfi site
-    // fetch('https://uat.newfi.com/rest/states/newfi_approved_states')
-    console.log(1234214);
-    // fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states').then(response => {
-    //   console.log(response);
-    //   console.log(response?.data);
-    //   // if (!response.error) {
-    //   //   if (response?.data?.resultObject)
-    //   //     setStateList(response?.data?.resultObject);
-    //   // }
-    // }).catch(error => { console.error('There was an error!', error); });
-    fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json(); // Parse the JSON from the response
+    apiService.get('/rest/states/newfi_approved_states').then(response => {
+      if (!response.error) {
+        if (response?.data?.resultObject)
+          setStateList(response?.data?.resultObject);
+      }
+    }).catch(error => { console.error('There was an error!', error); });
+    // fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states')
+    // .then(response => {
+    //     if (!response.ok) {
+    //         throw new Error('Network response was not ok');
+    //     }
+    //     return response.json(); // Parse the JSON from the response
+    // })
+    // .then(data => {
+    //     console.log(data); // This should log your JSON data
+    //     setStateList(data);
+    // })
+    // .catch(error => {
+    //     console.error('There was an error!', error);
+    // });
+    constants.getLocationDetails().then(resp => {
+      console.log(resp);
+      setclientCity(resp.city);
+      setclientState(resp.state);
+      setclientCountry(resp.country);
     })
-    .then(data => {
-        console.log(data); // This should log your JSON data
-        setStateList(data);
+    navigator.geolocation.getCurrentPosition(position => {
+      try {
+          setlat(position.coords.latitude);
+          setlon(position.coords.longitude);
+      }catch (error) {
+        console.error('Error:', error);
+      }
     })
-    .catch(error => {
-        console.error('There was an error!', error);
-    });
-
   }, [])
 
   const enableSubmitButton = (value, optValue) => {
@@ -128,6 +145,7 @@ function GetStartedForm() {
     );
 
     if (shouldGetOTP) {
+      saveUserDetailsWp();
       setAllFieldValid(false);
       const phoneNumberValue = phoneNumber.replace(/\D/g, "");
       // ${baseurl}/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${email}$
@@ -281,13 +299,56 @@ function GetStartedForm() {
       window.location.href = `${window.location.origin}/404`;
     }, 1000);
   };
+// pre-save userDetails
+  const saveUserDetailsWp = () => {
+    // setRecaptcha(value);
+    // console.log(value)
+    // axios.post('http://localhost:3100/verifyCaptcha', {token: value}).then((resp) =>{
+    //   console.log(resp);
+    // })
+    let urlSearchParams = new URLSearchParams(window.location.search);
+    let Qparams = Object.fromEntries(urlSearchParams.entries());
+    let LoanAppFormVO = new Object();
+    // const lat = position.coords.latitude;
+    // const lon = position.coords.longitude;
+    LoanAppFormVO.user = {
+      "firstName": formData.firstName,
+      "lastName": formData.lastName,
+      "emailId": formData.emailId,
+      "phoneNumber": formData.phoneNumber.replace(/\D/g, ""),
+      "URL": window.location.href,
+      "UTM": Qparams,
+      "lat": lat,
+      "lon": lon,
+    };
+    let reqData = new FormData();
+    reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
+    console.log(reqData);
+    axios.post('http://localhost/wordpress/wp-json/newfi/v1/submitData', reqData)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Parse the JSON from the response
+    })
+    .then(data => {
+        console.log(data); // This should log your JSON data
+        //setStateList(data);
+    })
+    .catch(error => {
+        console.error('There was an error!', error);
+    });
+  }
+
+  
+
 
   return (
     <div>
       <OverlayLoader />
       <form className="get-started-form">
-        <div className="flex gap15">
-          <div className="form-group w-50">
+        <div className="flex gap15 sm-gap0 sm-flexW">
+          <div className="form-group w-50 sm-w-100">
             <input
               className="nf-control"
               type="text"
@@ -302,7 +363,7 @@ function GetStartedForm() {
             {errors.firstName && <p className='nf-error-text'>{errors.firstName}</p>}
 
           </div>
-          <div className="form-group w-50">
+          <div className="form-group w-50 sm-w-100">
             <input
               className="nf-control"
               type="text"
@@ -318,8 +379,8 @@ function GetStartedForm() {
           </div>
         </div>
 
-        <div className="flex gap15">
-          <div className="form-group w-50 dropdown-container">
+        <div className="flex gap15 sm-gap0 sm-flexW">
+          <div className="form-group w-50 sm-w-100 dropdown-container">
             {/* <Dropdown tabIndex={3} name="referralPropertyState" options={stateList} onChange={handleChange} onBlur={handleValidation}
           onFocus={handleDropdownFocus}  // Add onFocus
           /> */}
@@ -339,7 +400,7 @@ function GetStartedForm() {
             </select>
             {errors.referralPropertyState && <p className='nf-error-text'>{errors.referralPropertyState}</p>}
           </div>
-          <div className="form-group w-50">
+          <div className="form-group w-50 sm-w-100">
             <input
               className="nf-control"
               type="email"
@@ -354,7 +415,7 @@ function GetStartedForm() {
             {errors.email && <p className='nf-error-text'>{errors.email}</p>}
           </div>
         </div>
-        <div className="form-group w-50">
+        <div className="form-group w-50 sm-w-100">
           <input
             className="nf-control"
             type="text"
@@ -374,13 +435,15 @@ function GetStartedForm() {
           (allfieldValid || isOtpEnabled) && <OtpForm key={otpKey} isExpired={isOtpEnabled} formData={formData} onValueChange={enableSubmitButton} />
         }
         {respErrorMsg && <div className="nf-error-common">{respErrorMsg}</div>}
-        <div className="flex alignC gap15 justifySB mT40">
+        <div className="flex alignC gap15 justifySB mT40 sm-flexW">
           <button className="nf-btn nf-btn-priamry" type="submit" id='purchase' name='purchase' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>I'm Buying A Home</button>
           <button className="nf-btn nf-btn-priamry" type="submit" id='refinance' name='refinance' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>I'm Refinancing My Home</button>
         </div>
         <GaConnector onUpdate={handleGaConnectorUpdate} />
         <Consent/>
+        {/*<ReCAPTCHA sitekey={secKey} onChange={setCaptchaValue} /> */}
       </form>
+        
         
     </div>
 

@@ -132,5 +132,39 @@ export default class CommonConstants{
       ]
     }
   }
+
+  getLocationDetails() {
+    if (navigator.geolocation) {
+        return new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(async position => {
+                try {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    // Fetch location details using Nominatim API
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+                    const data = await response.json();
+                    
+                    const address = data.address;
+                    const city = address.city || address.state_district || address.county;
+                    const state = address.state;
+                    const country = address.country;
+
+                    resolve({ city, state, country });
+                } catch (error) {
+                    console.error('Error:', error);
+                    reject(error);
+                }
+            }, error => {
+                console.error('Geolocation error:', error);
+                reject(error);
+            });
+        });
+    } else {
+        console.error('Geolocation is not supported by this browser.');
+        return Promise.reject(new Error('Geolocation is not supported by this browser.'));
+    }
+}
+
       
 }

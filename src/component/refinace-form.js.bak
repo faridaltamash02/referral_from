@@ -6,13 +6,11 @@ import GaConnector from '../common/components/ga-connector';
 import apiService from '../common/services/apiService';
 import OverlayLoader from '../common/components/loader';
 import Consent from './consent';
-import ReCAPTCHA from 'react-google-recaptcha';
-import axios from 'axios';
 
 
-
-
-function GetStartedForm() {
+function RefinaceForm(data) {
+  const formType = data.loanType;
+  //const [formType, setFormType] = useState(formType);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -20,12 +18,10 @@ function GetStartedForm() {
     emailId: '',
     referralPropertyState: '',
   });
-  const [recaptcha, setRecaptcha] = useState('');
   const [isSubmitBtnsEnabled, setIsSubmitBtnEnabled] = useState(false);
   const [errors, setErrors] = useState({ name: '', email: '' })
   const [allfieldValid, setAllFieldValid] = useState(false);
   const [respErrorMsg, setRespErrorMsg] = useState('');
-  const secKey = process.env.REACT_APP_RECAPTCHA_SECRET;
 
   const [prevFormData, setPrevFormData] = useState(null);
   const [otpKey, setOtpKey] = useState(0); // Key for OtpForm component
@@ -41,27 +37,13 @@ function GetStartedForm() {
 
   useEffect(() => {
     //to fetch approved states states == to uncoment once merged in newfi site
+    // fetch('https://uat.newfi.com/rest/states/newfi_approved_states')
     apiService.get('/rest/states/newfi_approved_states').then(response => {
       if (!response.error) {
         if (response?.data?.resultObject)
           setStateList(response?.data?.resultObject);
       }
     }).catch(error => { console.error('There was an error!', error); });
-    // fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states')
-    // .then(response => {
-    //     if (!response.ok) {
-    //         throw new Error('Network response was not ok');
-    //     }
-    //     return response.json(); // Parse the JSON from the response
-    // })
-    // .then(data => {
-    //     console.log(data); // This should log your JSON data
-    //     setStateList(data);
-    // })
-    // .catch(error => {
-    //     console.error('There was an error!', error);
-    // });
-
   }, [])
 
   const enableSubmitButton = (value, optValue) => {
@@ -81,17 +63,14 @@ function GetStartedForm() {
     //email validation
     const { name, value } = e.target;
     let errorMessage = {};
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
     if (name === 'emailId') {
-      errorMessage = util.validateEmail(value) ? '' : 'Please enter a valid email address.';
       setErrors((prevErrors) => ({ ...prevErrors, email: util.validateEmail(e.target.value) ? '' : 'Please enter a valid email address.', }));
     }
     if (name === 'phoneNumber') {
-      const numericPhoneNumber = value.replace(/\D/g, ''); // Remove non-digits
-      if (numericPhoneNumber.length !== 10) {
-        errorMessage = 'Please enter a valid 10-digit phone number.';
-        setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
-      }
+      console.log(e.target.value.length)
+      //validate field is not empty and length is 12
+      errorMessage = (e.target.value.length < 14) ? `Please enter valid 10 digit phone number.` : '';
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
     }
 
     if (name === 'referralPropertyState') {
@@ -108,7 +87,8 @@ function GetStartedForm() {
       setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
     }
     const allFieldPresent = Object.values(formData).every((value) => value !== '');
-    if (allFieldPresent) {
+    const allfieldValid = Object.values(errors).every((value) => value === '');
+    if (allFieldPresent && allfieldValid) {
       handleOTPGeneration();
     }
 
@@ -118,7 +98,6 @@ function GetStartedForm() {
     setRespErrorMsg('');
     const { phoneNumber, emailId } = formData;
 
-    //validate email and the phoneNumebr
     const emailValidation = util.validateEmail(emailId);
     const phoneNumberValidation = phoneNumber.replace(/\D/g, '').length === 10;
     // Check if either phone number or email is present and if they have changed
@@ -282,15 +261,6 @@ function GetStartedForm() {
     }, 1000);
   };
 
-  // const setCaptchaValue = (value) => {
-  //   setRecaptcha(value);
-  //   console.log(value)
-  //   axios.post('http://localhost:3100/verifyCaptcha', {token: value}).then((resp) =>{
-  //     console.log(resp);
-  //   })
-  // }
-
-
   return (
     <div>
       <OverlayLoader />
@@ -330,8 +300,8 @@ function GetStartedForm() {
         <div className="flex gap15">
           <div className="form-group w-50 dropdown-container">
             {/* <Dropdown tabIndex={3} name="referralPropertyState" options={stateList} onChange={handleChange} onBlur={handleValidation}
-          onFocus={handleDropdownFocus}  // Add onFocus
-          /> */}
+              onFocus={handleDropdownFocus}  // Add onFocus
+              /> */}
             <select
               onChange={handleChange}
               onBlur={handleValidation}
@@ -383,18 +353,17 @@ function GetStartedForm() {
           (allfieldValid || isOtpEnabled) && <OtpForm key={otpKey} isExpired={isOtpEnabled} formData={formData} onValueChange={enableSubmitButton} />
         }
         {respErrorMsg && <div className="nf-error-common">{respErrorMsg}</div>}
-        <div className="flex alignC gap15 justifySB mT40">
-          <button className="nf-btn nf-btn-priamry" type="submit" id='purchase' name='purchase' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>I'm Buying A Home</button>
-          <button className="nf-btn nf-btn-priamry" type="submit" id='refinance' name='refinance' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>I'm Refinancing My Home</button>
+        <div className="flex alignC gap15 mT40 justifyC">
+          {(formType == 'savings') && <button className="nf-btn nf-btn-priamry w-200I" type="submit" id='refinance' name='refinance' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>Submit</button>}
+          {(formType == 'purchase') && <button className="nf-btn nf-btn-priamry w-200I" type="submit" id='purchase' name='purchase' disabled={!(allfieldValid && isSubmitBtnsEnabled)} onClick={handleSubmit}>Submit</button>}
         </div>
+       
         <GaConnector onUpdate={handleGaConnectorUpdate} />
         <Consent/>
-        {/*<ReCAPTCHA sitekey={secKey} onChange={setCaptchaValue} /> */}
       </form>
-        
+
     </div>
 
   );
 }
-
-export default GetStartedForm;
+export default RefinaceForm;

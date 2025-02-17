@@ -6,9 +6,7 @@ import GaConnector from '../common/components/ga-connector';
 import apiService from '../common/services/apiService';
 import OverlayLoader from '../common/components/loader';
 import Consent from './consent';
-import ReCAPTCHA from 'react-google-recaptcha';
 import axios from 'axios';
-
 
 
 
@@ -20,12 +18,10 @@ function GetStartedForm() {
     emailId: '',
     referralPropertyState: '',
   });
-  const [recaptcha, setRecaptcha] = useState('');
   const [isSubmitBtnsEnabled, setIsSubmitBtnEnabled] = useState(false);
   const [errors, setErrors] = useState({ name: '', email: '' })
   const [allfieldValid, setAllFieldValid] = useState(false);
   const [respErrorMsg, setRespErrorMsg] = useState('');
-  const secKey = process.env.REACT_APP_RECAPTCHA_SECRET;
 
   const [prevFormData, setPrevFormData] = useState(null);
   const [otpKey, setOtpKey] = useState(0); // Key for OtpForm component
@@ -41,28 +37,25 @@ function GetStartedForm() {
 
   useEffect(() => {
     //to fetch approved states states == to uncoment once merged in newfi site
-    apiService.get('/rest/states/newfi_approved_states').then(response => {
-      if (!response.error) {
-        if (response?.data?.resultObject)
-          setStateList(response?.data?.resultObject);
-      }
-    }).catch(error => { console.error('There was an error!', error); });
-    // fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states')
-    // .then(response => {
-    //     if (!response.ok) {
-    //         throw new Error('Network response was not ok');
-    //     }
-    //     return response.json(); // Parse the JSON from the response
-    // })
-    // .then(data => {
-    //     console.log(data); // This should log your JSON data
-    //     setStateList(data);
-    // })
-    // .catch(error => {
-    //     console.error('There was an error!', error);
-    // });
-
-  }, [])
+    // fetch('https://uat.newfi.com/rest/states/newfi_approved_states')
+    // apiService.get('/rest/states/newfi_approved_states').then(response => {
+      const nonce = window.wpNonce;
+      axios.get(`/wp-json/myplugin/v1/approved_states/?_wpnonce=${nonce}`).then(response => {
+            if (!response.error) {
+                if (response?.data?.resultObject) {
+                    setStateList(response?.data?.resultObject);
+                }
+            }
+        }).catch(error => {
+            console.error('There was an error!', error);
+        });
+  //   apiService.get('/newfi_approved_states').then(response => {
+  //     if (!response.error) {
+  //       if (response?.data?.resultObject)
+  //         setStateList(response?.data?.resultObject);
+  //     }
+  //   }).catch(error => { console.error('There was an error!', error); });
+   }, [])
 
   const enableSubmitButton = (value, optValue) => {
     setIsSubmitBtnEnabled(value);
@@ -282,15 +275,6 @@ function GetStartedForm() {
     }, 1000);
   };
 
-  // const setCaptchaValue = (value) => {
-  //   setRecaptcha(value);
-  //   console.log(value)
-  //   axios.post('http://localhost:3100/verifyCaptcha', {token: value}).then((resp) =>{
-  //     console.log(resp);
-  //   })
-  // }
-
-
   return (
     <div>
       <OverlayLoader />
@@ -389,7 +373,6 @@ function GetStartedForm() {
         </div>
         <GaConnector onUpdate={handleGaConnectorUpdate} />
         <Consent/>
-        {/*<ReCAPTCHA sitekey={secKey} onChange={setCaptchaValue} /> */}
       </form>
         
     </div>

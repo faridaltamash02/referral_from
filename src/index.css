@@ -454,3 +454,14 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 }
 
 .w-200I{ width: 200px !important;}
+
+@media only screen and (max-width:767px) {
+  .sm-w-100{
+    width: 100% !important;
+  }
+  .sm-gap0{gap: 0px !important;}
+  .sm-flexW{
+    flex-wrap: wrap !important;
+  }
+  .sm-mT5{margin-top: 5px !important;}
+}

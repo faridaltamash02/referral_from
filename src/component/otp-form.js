@@ -149,7 +149,7 @@ function OtpForm({onValueChange, formData, isExpired}) {
 
   return (
     <div>
-      <div className="flex gap15 pos-rel">
+      <div className="flex gap15 pos-rel sm-flexW">
         <div className="form-group flex alignE">
           <input
             className="nf-control"
@@ -164,7 +164,7 @@ function OtpForm({onValueChange, formData, isExpired}) {
           {isOtpVerified && <div className="flex"><img decoding="async" src="https://staging.newfi.com/wp-content/uploads/2023/10/download.png" /><span className="fs12s">Verified</span></div>}
 
         </div>
-        {!isOtpVerified && <div className='flex alignC justifyC gap15'>
+        {!isOtpVerified && <div className='flex alignC justifyC gap15 sm-flexW'>
           <div>
             <button className="nf-btn nf-btn-priamry sm" type="submit" disabled={isVerifyBtnDisabled} onClick={handleSubmit} >Verify Code</button>
           </div>
@@ -176,7 +176,7 @@ function OtpForm({onValueChange, formData, isExpired}) {
         </div>
         }
       </div>
-      <div className="nf-error-text">{errorMessages}</div>
+      <div className="nf-error-text sm-mT5">{errorMessages}</div>
   </div>
   );
 }
