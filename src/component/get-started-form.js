@@ -324,16 +324,9 @@ function GetStartedForm() {
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
     console.log(reqData);
-    axios.post('http://localhost/wordpress/wp-json/newfi/v1/submitData', reqData)
+    axios.post('https://staging.newfi.com/wp-json/newfi/v1/submitData', reqData)
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json(); // Parse the JSON from the response
-    })
-    .then(data => {
-        console.log(data); // This should log your JSON data
-        //setStateList(data);
+      console.log('success');
     })
     .catch(error => {
         console.error('There was an error!', error);
