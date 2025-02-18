@@ -467,10 +467,12 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 }
 /* new css */
 .table-container {
-  max-height: 90vh; /* Adjust height as needed */
+  max-height: 80vh; /* Adjust height as needed */
   max-width: 100%;
   overflow: auto;
   outline: 1px solid #ddd;
+  outline-offset: -1px;
+  border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -497,8 +499,8 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 .table-container .nf-table th {
   background-color: #bed0eb;
   color: black;
-  padding: 12px 15px;
-  text-align: center;
+  padding: 8px 10px !important;
+  text-align: center !important;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -509,12 +511,10 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 .table-container .nf-table th,
 .table-container .nf-table td {
   border: 1px solid #e3e1e1;
-  padding: 12px 15px;
-  text-align: center;
+  padding: 8px 10px !important;
+  text-align: center !important;
   word-break: break-word;
   overflow-wrap: break-word;
-  font-family: 'Atlassian Sans';
-  font-size: 14px;
 }
 
 .table-container th {
@@ -544,26 +544,32 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 }
 
 /* Min-width for specific columns in .nf-table inside .table-container */
-.table-container .nf-table th:nth-child(5),
-.table-container .nf-table th:nth-child(13),
+.table-container .nf-table th:nth-child(6),
 .table-container .nf-table th:nth-child(14),
 .table-container .nf-table th:nth-child(3),
-.table-container .nf-table th:nth-child(4) {
+.table-container .nf-table th:nth-child(5) {
   min-width: 200px;
   max-width: 200px;
 }
-
-.table-container .nf-table td:nth-child(5),
-.table-container .nf-table td:nth-child(12) {
-  white-space: nowrap;
+.table-container .nf-table th:nth-child(4){
+  min-width: 210px;
+  max-width: 210px;
+}
+.table-container .nf-table td:nth-child(6),
+.table-container .nf-table td:nth-child(13) {
+  overflow: hidden;
+  max-width: 240px;
+}
+.table-container .nf-table td:nth-child(6) a,
+.table-container .nf-table td:nth-child(13) p {
   overflow: hidden;
   text-overflow: ellipsis;
-  display: block;
-  padding: 20px 15px;
-  width: 200px;
-  border-bottom: 0px;
-  border-left: 0px;
-  border-right: 0px;
+  display: -webkit-box;
+  width: 240px;
+  max-width: 240px;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-height: calc(1.7em* 2);
 }
 
 /* Min-width for specific columns inside .nf-table in .table-container */
@@ -662,4 +668,4 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 .modal-overlay .ok-btn:focus {
   outline: none;
 }
-.deleteInfo{font-size: 16px; color: #000; font-weight: 700; margin-bottom: 10px;}
+.deleteInfo{font-size: 16px; color: #000; font-weight: 700; margin-top: 10px;}

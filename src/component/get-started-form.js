@@ -118,6 +118,10 @@ function GetStartedForm() {
 
     //validate firstname and last name
     if (name === 'firstName' || name === 'lastName') {
+      if(name == "firstName"){
+        // remove attributes from the property state
+        document.querySelector('.nf-select').removeAttribute('tabindex');
+      }
       // change to camel case
       const camelCaseName = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
       setFormData((prevData) => ({ ...prevData, [name]: camelCaseName }));

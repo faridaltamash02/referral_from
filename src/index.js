@@ -9,34 +9,35 @@ import {LoaderProvider, useLoader} from './common/services/context/loadingContex
 import Dashboard from './component/dashboard';
 
 
-// const root = ReactDOM.createRoot(document.getElementById('root'));
-// root.render(
-//   <React.StrictMode>
-//     <LoaderProvider>
-//       {/* <EquityChoiceForm /> */}
-//       <GetStartedForm/>
-//     </LoaderProvider>
-//   </React.StrictMode>
-// );
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <LoaderProvider>
+      {/* <EquityChoiceForm /> */}
+      {/* <GetStartedForm/> */}
+      <Dashboard/>
+    </LoaderProvider>
+  </React.StrictMode>
+);
 
-const reactRoots = document.querySelectorAll('.react-root');
+// const reactRoots = document.querySelectorAll('.react-root');
 
-reactRoots.forEach((container, index) => {
-  const component = container.getAttribute('data-component');
-  const root = ReactDOM.createRoot(container);
-  // root.render(<App />);
-  // Render the appropriate component based on the attribute
-  if (component == 'get-started') {
-    root.render(<StrictMode><LoaderProvider><GetStartedForm key={index}/></LoaderProvider></StrictMode>);
-  } else if (component == 'equityChoice') {
-      root.render(<StrictMode><LoaderProvider><EquityChoiceForm key={index}/></LoaderProvider></StrictMode>);
-  } else if (component == 'refinance') {
-      root.render(<StrictMode><LoaderProvider><RefinaceForm loanType="savings" key={index}/></LoaderProvider></StrictMode>);
-  }else if (component == 'purchase') {
-    root.render(<StrictMode><LoaderProvider><RefinaceForm loanType="purchase" key={index}/></LoaderProvider></StrictMode>);
-  }else if(component == 'dashboard'){
-    root.render(<StrictMode><LoaderProvider><Dashboard/></LoaderProvider></StrictMode>);
-  }
-});
+// reactRoots.forEach((container, index) => {
+//   const component = container.getAttribute('data-component');
+//   const root = ReactDOM.createRoot(container);
+//   // root.render(<App />);
+//   // Render the appropriate component based on the attribute
+//   if (component == 'get-started') {
+//     root.render(<StrictMode><LoaderProvider><GetStartedForm key={index}/></LoaderProvider></StrictMode>);
+//   } else if (component == 'equityChoice') {
+//       root.render(<StrictMode><LoaderProvider><EquityChoiceForm key={index}/></LoaderProvider></StrictMode>);
+//   } else if (component == 'refinance') {
+//       root.render(<StrictMode><LoaderProvider><RefinaceForm loanType="savings" key={index}/></LoaderProvider></StrictMode>);
+//   }else if (component == 'purchase') {
+//     root.render(<StrictMode><LoaderProvider><RefinaceForm loanType="purchase" key={index}/></LoaderProvider></StrictMode>);
+//   }else if(component == 'dashboard'){
+//     root.render(<StrictMode><LoaderProvider><Dashboard/></LoaderProvider></StrictMode>);
+//   }
+// });
 
 

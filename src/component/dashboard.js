@@ -30,8 +30,9 @@ const Dashboard = () => {
       return response.json();
     })
       .then(result => {
-        setUserLists(result);
-        setIsModalOpen(true); //modal opening
+        const sortedUsers = result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setUserLists(sortedUsers);
+        setIsModalOpen(true);
 
       }).catch((error) => {
         console.error('There was an error!', error);
@@ -47,6 +48,7 @@ const Dashboard = () => {
           <th>Name</th>
           <th>Phone Number</th>
           <th>Email</th>
+          <th>Created At</th>
           <th>Location</th>
           <th>URL</th>
           <th>UTM Source</th>
@@ -57,7 +59,6 @@ const Dashboard = () => {
           <th>GAD Source</th>
           <th>Gclid</th>
           <th>IP Address</th>
-          <th>Created At</th>
         </tr>
       </thead>
       <tbody>
@@ -75,7 +76,7 @@ const Dashboard = () => {
               {row.email_id}
                 </a>
             </td>
-
+            <td>{util.formatDate(row.created_at)}</td>
             <td>
               { (row.city || row.state || row.country) ? 
                 (row.city ? row.city + ', ' : '') + 
@@ -94,9 +95,8 @@ const Dashboard = () => {
             <td>{row.utm_term || 'N/A'}</td>
             <td>{row.campaign_type || 'N/A'}</td>
             <td>{row.gad_source || 'N/A'}</td>
-            <td title={row.gclid}>{row.gclid || 'N/A'}</td>
+            <td title={row.gclid}><p>{row.gclid || 'N/A'}</p></td>
             <td>{row.ip_address}</td>
-            <td>{util.formatDate(row.created_at)}</td>
           </tr>
         ))}
       </tbody>
