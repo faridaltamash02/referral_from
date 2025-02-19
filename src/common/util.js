@@ -47,4 +47,20 @@ export default class Util{
       const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
       return new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
     };
+
+    getCordinates() {
+      return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(position => {
+          try {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            resolve({ lat, lon });
+          } catch (error) {
+            reject('Error:', error);
+          }
+        }, error => reject(error));
+      })
+      
+    }
+    
 }

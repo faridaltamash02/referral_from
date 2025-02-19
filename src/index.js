@@ -13,8 +13,8 @@ import Dashboard from './component/dashboard';
 // root.render(
 //   <React.StrictMode>
 //     <LoaderProvider>
-//       {/* <EquityChoiceForm /> */}
-//       <GetStartedForm/>
+//       <EquityChoiceForm />
+//       {/* <GetStartedForm/> */}
 //     </LoaderProvider>
 //   </React.StrictMode>
 // );

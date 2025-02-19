@@ -66,13 +66,13 @@ function OtpForm({onValueChange, formData, isExpired}) {
 
   const resendOtp = (e) => {
     e.preventDefault();
+    setErrorMessages('');
+    setOtpValue({ verification: '' });
     const phoneNumberValue = phoneNumber.replace(/\D/g, "");
-    console.log(allFieldPresent+"OTP");
     let allFieldPresent = Object.values(formData).every((value) => value !== '') && isValidEmail(formData.emailId) && phoneNumberValue.length == 10;
     if (allFieldPresent) {
       
       apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
-        console.log(response);
         if (!response.data.error) {
           if (response.data.resultObject.otpStatus.toLowerCase() == 'delivered' || response.resultObject.resultObject.toLowerCase() == "success") {
             setIsVerifyBtnDisabled(false);
@@ -93,6 +93,7 @@ function OtpForm({onValueChange, formData, isExpired}) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setErrorMessages('');
     if(!otpValue.verification){
       setErrorMessages(
         "Please enter verification code"

@@ -37,9 +37,6 @@ function GetStartedForm() {
   const [stateList, setStateList] = useState([]);
   
   const constants = new CommonConstants();
-  const [clientState, setclientState] = useState('');
-  const [clientCity, setclientCity] = useState('');
-  const [clientCountry, setclientCountry] = useState('');
   const [lat, setlat] = useState('');
   const [lon, setlon] = useState('');
 
@@ -65,20 +62,12 @@ function GetStartedForm() {
     // .catch(error => {
     //     console.error('There was an error!', error);
     // });
-    constants.getLocationDetails().then(resp => {
-      console.log(resp);
-      setclientCity(resp.city);
-      setclientState(resp.state);
-      setclientCountry(resp.country);
-    })
-    navigator.geolocation.getCurrentPosition(position => {
-      try {
-          setlat(position.coords.latitude);
-          setlon(position.coords.longitude);
-      }catch (error) {
-        console.error('Error:', error);
-      }
-    })
+    util.getCordinates().then(resp => {
+      console.log(resp)
+      setlat(resp.lat);
+      setlon(resp.lon)
+    }).catch(e => console.log(e))
+    
   }, [])
 
   const enableSubmitButton = (value, optValue) => {
@@ -94,46 +83,94 @@ function GetStartedForm() {
     }
   };
 
+  // const handleValidation = (e) => {
+  //   //email validation
+  //   const { name, value } = e.target;
+  //   let errorMessage = {};
+  //   setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
+  //   if (name === 'emailId') {
+  //     errorMessage = util.validateEmail(value) ? '' : 'Please enter a valid email address.';
+  //     setErrors((prevErrors) => ({ ...prevErrors, email: util.validateEmail(e.target.value) ? '' : 'Please enter a valid email address.', }));
+  //   }
+  //   if (name === 'phoneNumber') {
+  //     const numericPhoneNumber = value.replace(/\D/g, ''); // Remove non-digits
+  //     if (numericPhoneNumber.length !== 10) {
+  //       errorMessage = 'Please enter a valid 10-digit phone number.';
+  //       setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+  //     }
+  //   }
+
+  //   if (name === 'referralPropertyState') {
+  //     errorMessage = (e.target.value.toLowerCase() == '') ? `Please select property state.` : '';
+  //     setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+  //   }
+
+  //   //validate firstname and last name
+  //   if (name === 'firstName' || name === 'lastName') {
+  //     if(name == "firstName"){
+  //       // remove attributes from the property state
+  //       document.querySelector('.nf-select').removeAttribute('tabindex');
+  //     }
+  //     // change to camel case
+  //     const camelCaseName = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
+  //     setFormData((prevData) => ({ ...prevData, [name]: camelCaseName }));
+  //     errorMessage = util.validateName(camelCaseName) ? '' : `Please enter a valid ${name}.`;
+  //     setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+  //   }
+  //   const allFieldPresent = Object.values(formData).every((value) => value !== '');
+  //   if (allFieldPresent) {
+  //     handleOTPGeneration();
+  //   }
+
+  // }
   const handleValidation = (e) => {
-    //email validation
     const { name, value } = e.target;
     let errorMessage = {};
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
-    if (name === 'emailId') {
-      errorMessage = util.validateEmail(value) ? '' : 'Please enter a valid email address.';
-      setErrors((prevErrors) => ({ ...prevErrors, email: util.validateEmail(e.target.value) ? '' : 'Please enter a valid email address.', }));
-    }
-    if (name === 'phoneNumber') {
-      const numericPhoneNumber = value.replace(/\D/g, ''); // Remove non-digits
-      if (numericPhoneNumber.length !== 10) {
-        errorMessage = 'Please enter a valid 10-digit phone number.';
-        setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+  
+    setErrors((prevErrors) => {
+      let updatedErrors = { ...prevErrors };
+  
+      if (name === 'emailId') {
+        updatedErrors.email = util.validateEmail(value) ? '' : 'Please enter a valid email address.';
       }
-    }
-
-    if (name === 'referralPropertyState') {
-      errorMessage = (e.target.value.toLowerCase() == '') ? `Please select property state.` : '';
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
-    }
-
-    //validate firstname and last name
-    if (name === 'firstName' || name === 'lastName') {
-      if(name == "firstName"){
-        // remove attributes from the property state
-        document.querySelector('.nf-select').removeAttribute('tabindex');
+  
+      if (name === 'phoneNumber') {
+        updatedErrors.phoneNumber = value.length < 14 ? 'Please enter a valid 10-digit phone number.' : '';
       }
-      // change to camel case
-      const camelCaseName = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
-      setFormData((prevData) => ({ ...prevData, [name]: camelCaseName }));
-      errorMessage = util.validateName(camelCaseName) ? '' : `Please enter a valid ${name}.`;
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
-    }
-    const allFieldPresent = Object.values(formData).every((value) => value !== '');
-    if (allFieldPresent) {
-      handleOTPGeneration();
-    }
-
-  }
+  
+      if (name === 'referralPropertyState') {
+        updatedErrors.referralPropertyState = value.toLowerCase() === '' ? 'Please select a property state.' : '';
+      }
+  
+      if (name === 'firstName' || name === 'lastName') {
+        if (name === 'firstName') {
+          document.querySelector('.nf-select').removeAttribute('tabindex');
+          if(document.querySelectorAll('.nf-select').length>1){
+            document.querySelectorAll('.nf-select').forEach(element => {
+              element.removeAttribute('tabindex');
+          });
+          
+          }
+        }
+  
+        const camelCaseName = value.charAt(0).toUpperCase() + value.slice(1);
+        setFormData((prevData) => ({ ...prevData, [name]: camelCaseName }));
+  
+        updatedErrors[name] = util.validateName(camelCaseName) ? '' : `Please enter a valid ${name}.`;
+      }
+  
+      // Check if all fields are present and valid using updated state
+      const allFieldPresent = Object.values({ ...formData, [name]: value }).every((val) => val !== '');
+      const allFieldValid = Object.values(updatedErrors).every((val) => val === '');
+  
+      if (allFieldPresent && allFieldValid) {
+        handleOTPGeneration();
+      }
+  
+      return updatedErrors;
+    });
+  };
+  
 
   const handleOTPGeneration = () => {
     setRespErrorMsg('');
@@ -327,7 +364,6 @@ function GetStartedForm() {
     };
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
-    console.log(reqData);
     axios.post('https://staging.newfi.com/wp-json/newfi/v1/submitData', reqData)
     .then(response => {
       console.log('success');

@@ -6,6 +6,7 @@ import GaConnector from '../common/components/ga-connector';
 import apiService from '../common/services/apiService';
 import OverlayLoader from '../common/components/loader';
 import Consent from './consent';
+import axios from 'axios';
 
 
 function RefinaceForm(data) {
@@ -32,7 +33,8 @@ function RefinaceForm(data) {
 
   const [stateList, setStateList] = useState([]);
   const constants = new CommonConstants();
-
+  const [lat, setlat] = useState('');
+  const [lon, setlon] = useState('');
 
 
   useEffect(() => {
@@ -44,6 +46,11 @@ function RefinaceForm(data) {
           setStateList(response?.data?.resultObject);
       }
     }).catch(error => { console.error('There was an error!', error); });
+    util.getCordinates().then(resp => {
+      console.log(resp)
+      setlat(resp.lat);
+      setlon(resp.lon)
+    }).catch(e => console.log(e))
   }, [])
 
   const enableSubmitButton = (value, optValue) => {
@@ -59,40 +66,92 @@ function RefinaceForm(data) {
     }
   };
 
+  // const handleValidation = (e) => {
+  //   //email validation
+  //   const { name, value } = e.target;
+  //   let errorMessage = {};
+  //   if (name === 'emailId') {
+  //     setErrors((prevErrors) => ({ ...prevErrors, email: util.validateEmail(e.target.value) ? '' : 'Please enter a valid email address.', }));
+  //   }
+  //   if (name === 'phoneNumber') {
+  //     console.log(e.target.value.length)
+  //     //validate field is not empty and length is 12
+  //     errorMessage = (e.target.value.length < 14) ? `Please enter valid 10 digit phone number.` : '';
+  //     setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+  //   }
+
+  //   if (name === 'referralPropertyState') {
+  //     errorMessage = (e.target.value.toLowerCase() == '') ? `Please select property state.` : '';
+  //     setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+  //   }
+
+  //   //validate firstname and last name
+  //   if (name === 'firstName' || name === 'lastName') {
+  //     if(name == "firstName"){
+  //       // remove attributes from the property state
+  //       document.querySelector('.nf-select').removeAttribute('tabindex');
+  //     }
+  //     // change to camel case
+  //     const camelCaseName = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
+  //     setFormData((prevData) => ({ ...prevData, [name]: camelCaseName }));
+  //     errorMessage = util.validateName(camelCaseName) ? '' : `Please enter a valid ${name}.`;
+  //     setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+  //   }
+  //   const allFieldPresent = Object.values(formData).every((value) => value !== '');
+  //   const allfieldValid = Object.values(errors).every((value) => value === '');
+  //   if (allFieldPresent && allfieldValid) {
+  //     handleOTPGeneration();
+  //   }
+
+  // }
+
   const handleValidation = (e) => {
-    //email validation
     const { name, value } = e.target;
     let errorMessage = {};
-    if (name === 'emailId') {
-      setErrors((prevErrors) => ({ ...prevErrors, email: util.validateEmail(e.target.value) ? '' : 'Please enter a valid email address.', }));
-    }
-    if (name === 'phoneNumber') {
-      console.log(e.target.value.length)
-      //validate field is not empty and length is 12
-      errorMessage = (e.target.value.length < 14) ? `Please enter valid 10 digit phone number.` : '';
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
-    }
-
-    if (name === 'referralPropertyState') {
-      errorMessage = (e.target.value.toLowerCase() == '') ? `Please select property state.` : '';
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
-    }
-
-    //validate firstname and last name
-    if (name === 'firstName' || name === 'lastName') {
-      // change to camel case
-      const camelCaseName = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
-      setFormData((prevData) => ({ ...prevData, [name]: camelCaseName }));
-      errorMessage = util.validateName(camelCaseName) ? '' : `Please enter a valid ${name}.`;
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
-    }
-    const allFieldPresent = Object.values(formData).every((value) => value !== '');
-    const allfieldValid = Object.values(errors).every((value) => value === '');
-    if (allFieldPresent && allfieldValid) {
-      handleOTPGeneration();
-    }
-
-  }
+  
+    setErrors((prevErrors) => {
+      let updatedErrors = { ...prevErrors };
+  
+      if (name === 'emailId') {
+        updatedErrors.email = util.validateEmail(value) ? '' : 'Please enter a valid email address.';
+      }
+  
+      if (name === 'phoneNumber') {
+        updatedErrors.phoneNumber = value.length < 14 ? 'Please enter a valid 10-digit phone number.' : '';
+      }
+  
+      if (name === 'referralPropertyState') {
+        updatedErrors.referralPropertyState = value.toLowerCase() === '' ? 'Please select a property state.' : '';
+      }
+  
+      if (name === 'firstName' || name === 'lastName') {
+        document.querySelector('.nf-select').removeAttribute('tabindex');
+        //to be refactored==Ravi
+        if(document.querySelectorAll('.nf-select').length>1){
+          document.querySelectorAll('.nf-select').forEach(element => {
+            element.removeAttribute('tabindex');
+        });
+        
+        }
+  
+        const camelCaseName = value.charAt(0).toUpperCase() + value.slice(1);
+        setFormData((prevData) => ({ ...prevData, [name]: camelCaseName }));
+  
+        updatedErrors[name] = util.validateName(camelCaseName) ? '' : `Please enter a valid ${name}.`;
+      }
+  
+      // Check if all fields are present and valid using updated state
+      const allFieldPresent = Object.values({ ...formData, [name]: value }).every((val) => val !== '');
+      const allFieldValid = Object.values(updatedErrors).every((val) => val === '');
+  
+      if (allFieldPresent && allFieldValid) {
+        handleOTPGeneration();
+      }
+  
+      return updatedErrors;
+    });
+  };
+  
 
   const handleOTPGeneration = () => {
     setRespErrorMsg('');
@@ -108,6 +167,7 @@ function RefinaceForm(data) {
 
     if (shouldGetOTP) {
       setAllFieldValid(false);
+      saveUserDetailsWp();
       const phoneNumberValue = phoneNumber.replace(/\D/g, "");
       // ${baseurl}/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${email}$
       apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
@@ -254,6 +314,32 @@ function RefinaceForm(data) {
     }).catch(error => { console.error('There was an error!', error); });
 
   };
+
+  const saveUserDetailsWp = () => {
+    let urlSearchParams = new URLSearchParams(window.location.search);
+    let Qparams = Object.fromEntries(urlSearchParams.entries());
+    let LoanAppFormVO = new Object();
+    LoanAppFormVO.user = {
+      "firstName": formData.firstName,
+      "lastName": formData.lastName,
+      "emailId": formData.emailId,
+      "phoneNumber": formData.phoneNumber.replace(/\D/g, ""),
+      "URL": window.location.href,
+      "UTM": Qparams,
+      "lat": lat,
+      "lon": lon,
+    };
+    let reqData = new FormData();
+    reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
+    console.log(reqData);
+    axios.post('https://staging.newfi.com/wp-json/newfi/v1/submitData', reqData)
+    .then(response => {
+      console.log('success');
+    })
+    .catch(error => {
+        console.error('There was an error!', error);
+    });
+  }
 
   const redirectTo404 = () => {
     setTimeout(() => {
