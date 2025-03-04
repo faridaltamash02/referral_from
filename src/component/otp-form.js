@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import apiService from '../common/services/apiService';
+import axios from 'axios';
 
-function OtpForm({onValueChange, formData, isExpired}) {
+function OtpForm({onValueChange, formData, isExpired, cId}) {
   const [otpValue, setOtpValue] = useState({
     verification: '',
   });
@@ -72,7 +73,8 @@ function OtpForm({onValueChange, formData, isExpired}) {
     let allFieldPresent = Object.values(formData).every((value) => value !== '') && isValidEmail(formData.emailId) && phoneNumberValue.length == 10;
     if (allFieldPresent) {
       
-      apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
+      // apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
+      axios.post(`http://localhost/wordpress/wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
         if (!response.data.error) {
           if (response.data.resultObject.otpStatus.toLowerCase() == 'delivered' || response.resultObject.resultObject.toLowerCase() == "success") {
             setIsVerifyBtnDisabled(false);
@@ -104,7 +106,9 @@ function OtpForm({onValueChange, formData, isExpired}) {
     // Here you would typically make an API call to save the data
     //api for OTP validation
     //rest/leadSource/verifyOtp?phoneNumber=${phoneNumber}&otp=${otpVal}`
-    apiService.post(`/rest/leadSource/verifyOtp?phoneNumber=${phoneNumberValue}&otp=${otpValue.verification}`).then((response) => {
+    
+    //apiService.post(`/rest/leadSource/verifyOtp?phoneNumber=${phoneNumberValue}&otp=${otpValue.verification}`).then((response) => {
+    axios.post(`http://localhost/wordpress/wp-json/newfi/v1/validatUser?phoneNumber=${phoneNumberValue}&code=${otpValue.verification}&client_id=${cId}`, {}).then(response => {
       if(!response.data.error){
         clearInterval(intervalRef.current);
         onValueChange(true, otpValue.verification);

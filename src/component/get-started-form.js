@@ -39,29 +39,30 @@ function GetStartedForm() {
   const constants = new CommonConstants();
   const [lat, setlat] = useState('');
   const [lon, setlon] = useState('');
+  const [uid, setUid] = useState('');
 
   useEffect(() => {
     //to fetch approved states states == to uncoment once merged in newfi site
-    apiService.get('/rest/states/newfi_approved_states').then(response => {
-      if (!response.error) {
-        if (response?.data?.resultObject)
-          setStateList(response?.data?.resultObject);
-      }
-    }).catch(error => { console.error('There was an error!', error); });
-    // fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states')
-    // .then(response => {
-    //     if (!response.ok) {
-    //         throw new Error('Network response was not ok');
-    //     }
-    //     return response.json(); // Parse the JSON from the response
-    // })
-    // .then(data => {
-    //     console.log(data); // This should log your JSON data
-    //     setStateList(data);
-    // })
-    // .catch(error => {
-    //     console.error('There was an error!', error);
-    // });
+    // apiService.get('/rest/states/newfi_approved_states').then(response => {
+    //   if (!response.error) {
+    //     if (response?.data?.resultObject)
+    //       setStateList(response?.data?.resultObject);
+    //   }
+    // }).catch(error => { console.error('There was an error!', error); });
+    fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Parse the JSON from the response
+    })
+    .then(data => {
+        console.log(data); // This should log your JSON data
+        setStateList(data);
+    })
+    .catch(error => {
+        console.error('There was an error!', error);
+    });
     util.getCordinates().then(resp => {
       console.log(resp)
       setlat(resp.lat);
@@ -189,8 +190,8 @@ function GetStartedForm() {
       saveUserDetailsWp();
       setAllFieldValid(false);
       const phoneNumberValue = phoneNumber.replace(/\D/g, "");
-      // ${baseurl}/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${email}$
-      apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
+      //submitEmailPhone
+      axios.post(`http://localhost/wordpress/wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
         console.log(response);
         const result = response.data.resultObject;
         const error = response.data.error;
@@ -215,7 +216,36 @@ function GetStartedForm() {
             setRespErrorMsg("Invalid email. Please enter valid email.");
           }
         }
+      })
+      .catch(error => {
+          console.error('There was an error!', error);
       });
+      // apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
+      //   console.log(response);
+      //   const result = response.data.resultObject;
+      //   const error = response.data.error;
+      //   if (!error) {
+      //     if (result.otpStatus.toLowerCase() == 'delivered' || result.otpStatus.toLowerCase() == "success") {
+      //       setOtpKey(prevKey => prevKey + 1);
+      //       setAllFieldValid(true);
+      //       // Store current formData for comparison in the next effect run
+      //       setPrevFormData(formData);
+      //     } else if (result.otpStatus === "FAILED" && result.message === "Duplicate Lead") {
+      //       redirectTo404();
+      //     } else {
+      //       redirectTo404();
+      //     }
+      //   } else {
+      //     const errorMessage = error.message.toLowerCase();
+      //     if (errorMessage === "limit exceeded") {
+      //       redirectTo404();
+      //     } else if (errorMessage === "invalid request" || error.message.includes("not a valid phone number")) {
+      //       setRespErrorMsg("Invalid phone number.");
+      //     } else if (error.code == "400" || errorMessage === "invalid email") {
+      //       setRespErrorMsg("Invalid email. Please enter valid email.");
+      //     }
+      //   }
+      // });
 
     }
   }
@@ -364,8 +394,10 @@ function GetStartedForm() {
     };
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
-    axios.post('https://staging.newfi.com/wp-json/newfi/v1/submitData', reqData)
+    //axios.post('https://staging.newfi.com/wp-json/newfi/v1/submitData', reqData)
+    axios.post('http://localhost/wordpress/wp-json/newfi/v1/submitData', reqData)
     .then(response => {
+      setUid(response.data);
       console.log('success');
     })
     .catch(error => {
@@ -465,7 +497,7 @@ function GetStartedForm() {
         </div>
 
         {
-          (allfieldValid || isOtpEnabled) && <OtpForm key={otpKey} isExpired={isOtpEnabled} formData={formData} onValueChange={enableSubmitButton} />
+          (allfieldValid || isOtpEnabled) && <OtpForm key={otpKey} isExpired={isOtpEnabled} cId={uid} formData={formData} onValueChange={enableSubmitButton} />
         }
         {respErrorMsg && <div className="nf-error-common">{respErrorMsg}</div>}
         <div className="flex alignC gap15 justifySB mT40 sm-flexW">
