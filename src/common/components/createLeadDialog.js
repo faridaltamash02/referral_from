@@ -16,7 +16,6 @@
         loanPurpose: loanType,
         createdBy: sessionStorage.getItem("wp_logged_in_user")
       }
-      https://uat.newfi.com/loancenter/rest/crm/createDashboardLead
  
       apiService.post('rest/crm/createDashboardLead', JSON.stringify(reqObj), { headers: { 'Content-Type': 'application/json', }, cache: 'no-cache' }).then((data) => {
         if (data.resultObject !== null && data.resultObject !== "Failure") {

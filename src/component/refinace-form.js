@@ -35,7 +35,8 @@ function RefinaceForm(data) {
   const constants = new CommonConstants();
   const [lat, setlat] = useState('');
   const [lon, setlon] = useState('');
-
+  let dynamicURL = window.location.origin.includes('staging') ? 'https://staging.newfi.com/' : 'https://newfi.com/';
+  const API_URL = dynamicURL || 'https://staging.newfi.com/';
 
   useEffect(() => {
     //to fetch approved states states == to uncoment once merged in newfi site
@@ -168,7 +169,6 @@ function RefinaceForm(data) {
       setAllFieldValid(false);
       saveUserDetailsWp();
       const phoneNumberValue = phoneNumber.replace(/\D/g, "");
-      // ${baseurl}/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${email}$
       apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
         const result = response.data.resultObject;
         const error = response.data.error;

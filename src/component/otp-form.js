@@ -18,7 +18,8 @@ function OtpForm({onValueChange, formData, isExpired, cId}) {
   }
   const [errorMessages, setErrorMessages] = useState('');
   const { phoneNumber, emailId } = formData;
-  
+  let dynamicURL = window.location.origin.includes('staging') ? 'https://staging.newfi.com/' : 'https://newfi.com/';
+  const API_URL = dynamicURL || 'https://staging.newfi.com/';
   // useEffect(() => {
   //   let interval;
   //   //start timer

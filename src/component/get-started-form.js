@@ -40,7 +40,8 @@ function GetStartedForm() {
   const [lat, setlat] = useState('');
   const [lon, setlon] = useState('');
   const [uid, setUid] = useState('');
-
+  let dynamicURL = window.location.origin.includes('staging') ? 'https://staging.newfi.com/' : 'https://newfi.com/';
+  const API_URL = dynamicURL || 'https://staging.newfi.com/';
   useEffect(() => {
     //to fetch approved states states == to uncoment once merged in newfi site
     // apiService.get('/rest/states/newfi_approved_states').then(response => {
@@ -49,7 +50,8 @@ function GetStartedForm() {
     //       setStateList(response?.data?.resultObject);
     //   }
     // }).catch(error => { console.error('There was an error!', error); });
-    fetch('http://localhost/wordpress/wp-json/proxy/v1/approved_states')
+    //https://staging.newfi.com/
+    fetch(`${API_URL}/wp-json/proxy/v1/approved_states`)
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -189,7 +191,8 @@ function GetStartedForm() {
       setAllFieldValid(false);
       const phoneNumberValue = phoneNumber.replace(/\D/g, "");
       //submitEmailPhone
-      axios.post(`http://localhost/wordpress/wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
+      //axios.post(`http://localhost/wordpress/wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
+        axios.post(`${API_URL}/wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
         console.log(response);
         const result = response.data.resultObject;
         const error = response.data.error;

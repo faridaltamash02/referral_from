@@ -31,8 +31,7 @@ const Dashboard = () => {
   const closeLeadDialog = () => setIsLeadDialogOpen(false);
   useEffect(() => {
     //getUsers
-    // fetch('https://staging.newfi.com/wp-json/newfi/v1/getUsers')
-    fetch('http://localhost/wordpress/wp-json/newfi/v1/getUsers')
+    fetch('https://staging.newfi.com/wp-json/newfi/v1/getUsers')
     .then(response => {
       if (!response.ok) {
                 throw new Error('Network response was not ok');

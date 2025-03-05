@@ -35,6 +35,8 @@ function EquityChoiceForm() {
   const [lon, setlon] = useState('');
 
   const constants = new CommonConstants();
+  let dynamicURL = window.location.origin.includes('staging') ? 'https://staging.newfi.com/' : 'https://newfi.com/';
+  const API_URL = dynamicURL || 'https://staging.newfi.com/';
   useEffect(() => {
     //to fetch approved states states    
     setStateList(constants.getEquityChoiceState().resultObject);
