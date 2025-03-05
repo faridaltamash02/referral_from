@@ -5,6 +5,7 @@ import CreateLeadDialog from '../common/components/createLeadDialog';
 
 const Dashboard = () => {
   const [userLists, setUserLists] = useState([]);
+  const [user, setUser] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
   const util = new Util();
@@ -22,6 +23,11 @@ const Dashboard = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
+  const openLeadModal = (row) =>{
+    console.log(3242);
+    setUser(row);
+    setIsLeadDialogOpen(true)
+  }
   const closeLeadDialog = () => setIsLeadDialogOpen(false);
   useEffect(() => {
     //getUsers
@@ -41,6 +47,7 @@ const Dashboard = () => {
       }).catch((error) => {
         console.error('There was an error!', error);
       })
+    
   },[])
 
   return (
@@ -56,7 +63,7 @@ const Dashboard = () => {
               <th className='location'>Location</th>
               <th className='url'>URL</th>
               <th className='otpstatus'>OPT Status</th>
-              <th className='crmid'>CRM ID</th>
+              <th className='crm_id'>CRM ID</th>
               <th className='utmsource'>UTM Source</th>
               <th>UTM Medium</th>
               <th>UTM Campaign</th>
@@ -97,7 +104,7 @@ const Dashboard = () => {
               </a>
             </td>
             <td className='whiteS'>{row.otp_status === '1' ? 'Verified' : 'Not Verified'}</td>
-            <td>{row.crmid || 'N/A'}</td>
+            <td>{row.crm_id || 'N/A'}</td>
             <td>{row.utm_source || 'N/A'}</td>
             <td>{row.utm_medium || 'N/A'}</td>
             <td>{row.utm_campaign || 'N/A'}</td>
@@ -107,10 +114,10 @@ const Dashboard = () => {
             <td title={row.gclid}><p>{row.gclid || 'N/A'}</p></td>
             <td className='whiteS'>{row.ip_address}</td>
             <td>
-                  {row.lead_status === 'true' ? (
+                  {row.crm_id ? (
                     <span>Lead Created</span>
                   ) : (
-                    <button className='nf-btn nf-btn-lead round whiteS' onClick={() => setIsLeadDialogOpen(true)}>
+                    <button className='nf-btn nf-btn-lead round whiteS' onClick={() =>openLeadModal(row)}>
                       Create Lead
                     </button>
                   )}
@@ -120,7 +127,7 @@ const Dashboard = () => {
       </tbody>
     </table>
     <DeleteInfoDialog isOpen={isModalOpen} onClose={closeModal} />
-    <CreateLeadDialog isOpen={isLeadDialogOpen} onClose={closeLeadDialog} />
+    <CreateLeadDialog userDetail={user} isOpen={isLeadDialogOpen} onClose={closeLeadDialog} />
   </div>
     <p className='deleteInfo'>*User details will be permanently deleted 15 days after the date of creation.</p>
   </div>

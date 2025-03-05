@@ -291,12 +291,12 @@ function GetStartedForm() {
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
     //api call create lead : rest/leadSource/newfiWebsiteLeadDetails
-    apiService.post('/rest/leadSource/newfiWebsiteLeadDetails', reqData, { headers: { 'Content-Type': 'multipart/form-data', }, cache: 'no-cache' }).then((response) => {
+    //apiService.post('/rest/leadSource/newfiWebsiteLeadDetails', reqData, { headers: { 'Content-Type': 'multipart/form-data', }, cache: 'no-cache' }).then((response) => {
+      axios.post(`http://localhost/wordpress/wp-json/newfi/v1/saveLeadDetails?client_id=${uid}`, reqData).then((response) => {
       let data = response.data;
       let loanTypeCd = LoanAppFormVO.loanType.loanTypeCd;
       if (data.resultObject !== null && data.resultObject !== "Failure") {
         let envUrl = data.resultObject.url.replace(/(loancenter\/)/, '');
-
         if ((data.resultObject.duplicateAccount != undefined && data.resultObject.duplicateLead != undefined) && (data.resultObject.duplicateAccount == true || data.resultObject.duplicateLead == true)) {
           window.setTimeout(() => {
             if (data.resultObject.duplicateAccount == true && (data.resultObject.duplicateLead != undefined && data.resultObject.duplicateLead == true)) {
@@ -310,7 +310,6 @@ function GetStartedForm() {
                 window.location.href = envUrl + "savings/#/" + data.resultObject.crmId + "/";
               }
             }
-
           }, 5000);
         } else if (data.resultObject.otpStatus == 'FAILED' && data.resultObject.message == 'Duplicate Lead') {
           let redirectUrl;
@@ -389,6 +388,7 @@ function GetStartedForm() {
       "UTM": Qparams,
       "lat": lat,
       "lon": lon,
+      "referralPropertyState": formData.referralPropertyState
     };
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));

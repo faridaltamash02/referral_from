@@ -13,7 +13,7 @@ import Dashboard from './component/dashboard';
 // root.render(
 //   <React.StrictMode>
 //     <LoaderProvider>
-//       <EquityChoiceForm />
+//       <Dashboard />
 //       {/* <GetStartedForm/> */}
 //     </LoaderProvider>
 //   </React.StrictMode>

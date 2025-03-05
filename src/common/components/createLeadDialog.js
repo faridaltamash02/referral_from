@@ -1,12 +1,63 @@
-  import React from 'react';
-  const userInfo = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "123-456-7890"
-  };
-  const CreateLeadDialog = ({ isOpen, onClose }) => {
+  import React, { useState } from 'react';
+  import apiService from '../services/apiService';
+  const CreateLeadDialog = ({ isOpen, onClose, userDetail }) => {
+    const [loanType, setLoanType] = useState();
+   
+    
     if (!isOpen) return null; // If the modal is not open, render nothing
-
+  
+    const createLead = () => {
+      let reqObj = {
+        firstName: userDetail.first_name,
+        lastName: userDetail.last_name,
+        phoneNumber: userDetail.phone_number,
+        email_id: userDetail.email,
+        propertyState: userDetail.referralPropertyState,
+        loanPurpose: loanType,
+        createdBy: sessionStorage.getItem("wp_logged_in_user")
+      }
+      https://uat.newfi.com/loancenter/rest/crm/createDashboardLead
+ 
+      apiService.post('rest/crm/createDashboardLead', JSON.stringify(reqObj), { headers: { 'Content-Type': 'application/json', }, cache: 'no-cache' }).then((data) => {
+        if (data.resultObject !== null && data.resultObject !== "Failure") {
+          let envUrl = data.resultObject.url.replace(/(loancenter\/)/, '');
+          if ((data.resultObject.duplicateAccount != undefined && data.resultObject.duplicateLead != undefined) && (data.resultObject.duplicateAccount == true || data.resultObject.duplicateLead == true)) {
+            window.setTimeout(() => {
+              if (data.resultObject.duplicateAccount == true && (data.resultObject.duplicateLead != undefined && data.resultObject.duplicateLead == true)) {
+                window.location.href = data.resultObject.url;
+              } else if ((data.resultObject.duplicateLead != undefined && data.resultObject.duplicateLead == true) && data.resultObject.duplicateAccount == false) {
+                if (loanType == 'PUR') {
+                  window.location.href = envUrl + "preapproval/#/" + data.resultObject.crmId + "/";
+                } else if (loanType == 'REFNSAM') {
+                  window.location.href = envUrl + "equitychoice/#/" + data.resultObject.crmId + "/";
+                } else {
+                  window.location.href = envUrl + "savings/#/" + data.resultObject.crmId + "/";
+                }
+              }
+            }, 5000);
+          } else if (data.resultObject.otpStatus == 'FAILED' && data.resultObject.message == 'Duplicate Lead') {
+            let redirectUrl;
+            if (loanType === "PUR") {
+              redirectUrl = `${envUrl}preapproval/#/${data.resultObject.crmId}/`;
+            } else if (loanType === "REFNSAM") {
+              redirectUrl = `${envUrl}equitychoice/#/${data.resultObject.crmId}/`;
+            } else {
+              redirectUrl = `${envUrl}savings/#/${data.resultObject.crmId}/`;
+            }
+            window.location.href = redirectUrl;
+          } else {
+            if (loanType == 'PUR') {
+              window.location.href = envUrl + "preapproval/#/" + data.resultObject.crmId + "/";
+            } else if (loanType == 'REFNSAM') {
+              window.location.href = envUrl + "equitychoice/#/" + data.resultObject.crmId + "/";
+            } else {
+              window.location.href = envUrl + "savings/#/" + data.resultObject.crmId + "/";
+            }
+  
+          }
+        }
+      })
+    }
     return (
       <div className="modal-overlay createlead">
         <div className="modal">
@@ -31,7 +82,8 @@
                   type="radio"
                   id="PUR"
                   name="financeGoal"
-                  value="true"
+                  onChange={(event) => setLoanType(event.target.value)}
+                  value="PUR"
                 />
                 <label className="nf-checklist-label" htmlFor="PUR">
                   Purchase
@@ -43,6 +95,8 @@
                   className="nf-checklist-checkbox dN"
                   id="REF"
                   name="financeGoal"
+                  onChange={(event) => setLoanType(event.target.value)}
+                  value="REF"
                 />
                 <label className="nf-checklist-label" htmlFor="REF">
                   Refinance
@@ -54,17 +108,19 @@
                   className="nf-checklist-checkbox dN"
                   id="equity"
                   name="financeGoal"
+                  onChange={(event) => setLoanType(event.target.value)}
+                  value="REFNSAM"
                 />
                 <label className="nf-checklist-label" htmlFor="equity">
-                  Home Equity (Second Mortgage)
+                  Home Equity
                 </label>
               </div>
             </div>
           </div>
         
-          {/* <div className="modal-footer">
-            <button className="ok-btn round " onClick={onClose}>Create</button>
-          </div> */}
+          <div className="modal-footer">
+            <button className="ok-btn round" disabled={!loanType} onClick={createLead}>Submit</button>
+          </div>
         </div>
       </div>
     );
