@@ -47,7 +47,6 @@ function RefinaceForm(data) {
       }
     }).catch(error => { console.error('There was an error!', error); });
     util.getCordinates().then(resp => {
-      console.log(resp)
       setlat(resp.lat);
       setlon(resp.lon)
     }).catch(e => console.log(e))
@@ -171,7 +170,6 @@ function RefinaceForm(data) {
       const phoneNumberValue = phoneNumber.replace(/\D/g, "");
       // ${baseurl}/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${email}$
       apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
-        console.log(response);
         const result = response.data.resultObject;
         const error = response.data.error;
         if (!error) {
@@ -214,7 +212,6 @@ function RefinaceForm(data) {
     e.preventDefault();
     let btnText = e.target.name;
     // Here you would typically make an API call to save the data
-    console.log('Form data submitted:', formData);
     let LoanAppFormVO = new Object();
     let loan = new Object();
     let loanType = new Object();
@@ -331,10 +328,9 @@ function RefinaceForm(data) {
     };
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
-    console.log(reqData);
-    axios.post('https://staging.newfi.com/wp-json/newfi/v1/submitData', reqData)
+    axios.post('https://newfi.com/wp-json/newfi/v1/submitData', reqData)
     .then(response => {
-      console.log('success');
+      // console.log('success');
     })
     .catch(error => {
         console.error('There was an error!', error);

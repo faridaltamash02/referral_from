@@ -39,7 +39,6 @@ function EquityChoiceForm() {
     //to fetch approved states states    
     setStateList(constants.getEquityChoiceState().resultObject);
     util.getCordinates().then(resp => {
-      console.log(resp)
       setlat(resp.lat);
       setlon(resp.lon)
     }).catch(e => console.log(e))
@@ -53,7 +52,6 @@ function EquityChoiceForm() {
       setFormData({ ...formData, [name]: util.formatPhoneNumber(value) });
     } else if (name === 'housePrice') {
       if(e.target.value.length){
-        console.log(util.formatCurrency(value))
         setFormData({ ...formData, [name]: util.formatCurrency(value) });
       }
     } else if (name === 'referralPropertyState') {
@@ -327,10 +325,9 @@ function EquityChoiceForm() {
     };
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
-    console.log(reqData);
     axios.post('https://staging.newfi.com/wp-json/newfi/v1/submitData', reqData)
     .then(response => {
-      console.log('success');
+      // console.log('success');
     })
     .catch(error => {
         console.error('There was an error!', error);

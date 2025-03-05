@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Util from '../common/util';
 import DeleteInfoDialog from '../common/components/deleteinfoDialog';
+import CreateLeadDialog from '../common/components/createLeadDialog';
 
 const Dashboard = () => {
   const [userLists, setUserLists] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
   const util = new Util();
 
   const formatPhoneNumber = (phoneNumber) => {
@@ -20,6 +22,7 @@ const Dashboard = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
+  const closeLeadDialog = () => setIsLeadDialogOpen(false);
   useEffect(() => {
     //getUsers
     // fetch('https://staging.newfi.com/wp-json/newfi/v1/getUsers')
@@ -42,37 +45,40 @@ const Dashboard = () => {
 
   return (
     <div>
- <div className="table-container">
-    <table className="nf-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Phone Number</th>
-          <th>Email</th>
-          <th>Created At</th>
-          <th>Location</th>
-          <th>URL</th>
-          <th>UTM Source</th>
-          <th>UTM Medium</th>
-          <th>UTM Campaign</th>
-          <th>UTM Term</th>
-          <th>Campaign Type</th>
-          <th>GAD Source</th>
-          <th>Gclid</th>
-          <th>IP Address</th>
-        </tr>
-      </thead>
-      <tbody>
-        {userLists.map((row, index) => (
-          <tr key={index}>
-            <td>{row.first_name} {row.last_name}</td>
-            
-            <td>
-              <a className='noUnderline' href={`tel:${row.phone_number}`} target="_blank" rel="noopener noreferrer">
-              {formatPhoneNumber(row.phone_number)}
-                </a>
-            </td>
-            <td>
+      <div className="table-container">
+        <table className="nf-table">
+          <thead>
+            <tr>
+              <th className='name'>Name</th>
+              <th className='phonenumber'>Phone Number</th>
+              <th className='email'>Email</th>
+              <th className='createdat'>Created At</th>
+              <th className='location'>Location</th>
+              <th className='url'>URL</th>
+              <th className='otpstatus'>OPT Status</th>
+              <th className='crmid'>CRM ID</th>
+              <th className='utmsource'>UTM Source</th>
+              <th>UTM Medium</th>
+              <th>UTM Campaign</th>
+              <th>UTM Term</th>
+              <th>Campaign Type</th>
+              <th className='gadsource'>GAD Source</th>
+              <th className='gclid'>Gclid</th>
+              <th className='ipaddress'>IP Address</th>
+              <th className='leadstatus'>Lead Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {userLists.map((row, index) => (
+              <tr key={index}>
+                <td>{row.first_name} {row.last_name}</td>
+                <td>
+                  <a className='noUnderline whiteS' href={`tel:${row.phone_number}`} target="_blank" rel="noopener noreferrer">
+                    {formatPhoneNumber(row.phone_number)}
+                  </a>
+                </td>
+                <td>
+                  <a href={`mailto:${row.email_id}`} target="_blank" rel="noopener noreferrer"></a>
               <a href={`mailto:${row.email_id}`} target="_blank" rel="noopener noreferrer">
               {row.email_id}
                 </a>
@@ -90,6 +96,8 @@ const Dashboard = () => {
                 {row.url}
               </a>
             </td>
+            <td className='whiteS'>{row.otp_status === '1' ? 'Verified' : 'Not Verified'}</td>
+            <td>{row.crmid || 'N/A'}</td>
             <td>{row.utm_source || 'N/A'}</td>
             <td>{row.utm_medium || 'N/A'}</td>
             <td>{row.utm_campaign || 'N/A'}</td>
@@ -97,12 +105,22 @@ const Dashboard = () => {
             <td>{row.campaign_type || 'N/A'}</td>
             <td>{row.gad_source || 'N/A'}</td>
             <td title={row.gclid}><p>{row.gclid || 'N/A'}</p></td>
-            <td>{row.ip_address}</td>
+            <td className='whiteS'>{row.ip_address}</td>
+            <td>
+                  {row.lead_status === 'true' ? (
+                    <span>Lead Created</span>
+                  ) : (
+                    <button className='nf-btn nf-btn-lead round whiteS' onClick={() => setIsLeadDialogOpen(true)}>
+                      Create Lead
+                    </button>
+                  )}
+                </td>
           </tr>
         ))}
       </tbody>
     </table>
     <DeleteInfoDialog isOpen={isModalOpen} onClose={closeModal} />
+    <CreateLeadDialog isOpen={isLeadDialogOpen} onClose={closeLeadDialog} />
   </div>
     <p className='deleteInfo'>*User details will be permanently deleted 15 days after the date of creation.</p>
   </div>

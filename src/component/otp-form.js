@@ -40,7 +40,6 @@ function OtpForm({onValueChange, formData, isExpired, cId}) {
           const newTimer = prevTimer - 1;
           if (newTimer === 0) {
             // Trigger your event here.  Examples:
-            console.log("Timer reached zero!");
             // Or call a function:
             handleTimerExpiration();
           }

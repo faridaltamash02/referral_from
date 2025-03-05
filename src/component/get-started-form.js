@@ -57,14 +57,12 @@ function GetStartedForm() {
         return response.json(); // Parse the JSON from the response
     })
     .then(data => {
-        console.log(data); // This should log your JSON data
         setStateList(data);
     })
     .catch(error => {
         console.error('There was an error!', error);
     });
     util.getCordinates().then(resp => {
-      console.log(resp)
       setlat(resp.lat);
       setlon(resp.lon)
     }).catch(e => console.log(e))
@@ -398,7 +396,7 @@ function GetStartedForm() {
     axios.post('http://localhost/wordpress/wp-json/newfi/v1/submitData', reqData)
     .then(response => {
       setUid(response.data);
-      console.log('success');
+      // console.log('success');
     })
     .catch(error => {
         console.error('There was an error!', error);

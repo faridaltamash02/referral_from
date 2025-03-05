@@ -312,6 +312,17 @@
   border-color: rgba(242, 117, 33, 1) !important;
   color: #ffffff;
 }
+.nf-btn-lead{
+  font-size: 14px !important;
+  min-width:80px;
+  padding: 8px 14px !important;
+  background-color: rgba(242, 117, 33, 1) !important;
+  border-color: rgba(242, 117, 33, 1) !important;
+  color: #ffffff;
+}
+.nf-btn.round {
+  border-radius: 50px !important;
+}
 .nf-btn[disabled] {
   cursor: not-allowed !important;
   opacity: .5;
@@ -534,6 +545,13 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
   z-index: 3;
   outline: 1px solid #b8b5b5;
 }
+.table-container .nf-table td:last-child {
+  position: sticky;
+  right: 0;
+  background: rgb(216, 225, 245);
+  z-index: 3;
+  outline: 1px solid #b8b5b5;
+}
 
 .table-container .nf-table th:first-child {
   position: sticky;
@@ -542,29 +560,36 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
   z-index: 13;
   
 }
+.table-container .nf-table th:last-child {
+  position: sticky;
+  right: 0;
+  background: #b7cceb;
+  z-index: 13;
+  
+}
 
 /* Min-width for specific columns in .nf-table inside .table-container */
-.table-container .nf-table th:nth-child(6),
-.table-container .nf-table th:nth-child(3),
-.table-container .nf-table th:nth-child(5) {
+.table-container .nf-table .url,
+.table-container .nf-table .email,
+.table-container .nf-table .location {
   min-width: 200px;
   max-width: 200px;
 }
-.table-container .nf-table th:nth-child(4){
+.table-container .nf-table .createdat{
   min-width: 220px;
   max-width: 220px;
 }
-.table-container .nf-table th:nth-child(14){
-  min-width: 140px;
-  max-width: 140px;
+.table-container .crmid{
+  min-width: 170px;
+  max-width: 170px;
 }
-.table-container .nf-table td:nth-child(6),
-.table-container .nf-table td:nth-child(13) {
+.table-container .nf-table .url,
+.table-container .nf-table .gclid {
   overflow: hidden;
   max-width: 240px;
 }
 .table-container .nf-table td:nth-child(6) a,
-.table-container .nf-table td:nth-child(13) p {
+.table-container .nf-table td:nth-child(15) p {
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -576,8 +601,7 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 }
 
 /* Min-width for specific columns inside .nf-table in .table-container */
-.table-container .nf-table th:nth-child(1),
-.table-container .nf-table th:nth-child(2) {
+.table-container .nf-table .name {
   min-width: 140px;
 }
 .noUnderline{text-decoration: none;}
@@ -669,3 +693,83 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
   outline: none;
 }
 .deleteInfo{font-size: 16px; color: #000; font-weight: 700; margin-top: 10px;}
+.createlead .nf-checklist-item {
+  border-radius: 60px;
+  max-width: 80%;
+  border: none !important;
+}
+
+.createlead .nf-checklist-item.sm .nf-checklist-label {
+  height: 34px;
+  font-size: 16px;
+  padding-block: 6px;
+}
+
+.createlead .nf-checklist-item .nf-checklist-label {
+  border-radius: 50px;
+  padding-inline: 16px;
+  min-height: 40px;
+  min-width: 70px;
+  border: none !important;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 400;
+  cursor: pointer;
+  color: #0A4598;
+  transition: all 0.2s linear;
+  box-shadow: 0.4px 0.4px 2px #0A4598;
+  z-index: 1;
+  position: relative;
+}
+
+.createlead .nf-checklist-item .nf-checklist-label:hover {
+  border: none;
+  box-shadow: 0px 0px 8px #ed7923;
+}
+
+.createlead .nf-checklist-item .nf-checklist-checkbox:checked + .nf-checklist-label,
+.createlead .nf-checklist-item .nf-checklist-label.selected {
+  color: #fff;
+  background-color: #ed7923;
+  box-shadow: 0 0 0 1.3px #ed7923;
+}
+
+.createlead .nf-checkbox-control:has(.nf-selection-input:checked) .nf-checklist-label {
+  color: #fff;
+  border-color: transparent;
+  background-color: #ed7923;
+  box-shadow: 0 0 0 1.3px #ed7923;
+}
+.createlead.modal-overlay .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 10px;
+}
+.createlead.modal-overlay .body-head {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+.ok-btn.round{border-radius: 50px;}
+  .createlead .user-info {
+    margin-top: 10px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.createlead .user-info p {
+  margin: 5px 0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color:#0A4598;
+}
+
+
