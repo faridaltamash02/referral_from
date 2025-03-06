@@ -35,6 +35,7 @@ function RefinaceForm(data) {
   const constants = new CommonConstants();
   const [lat, setlat] = useState('');
   const [lon, setlon] = useState('');
+  const [uid, setUid] = useState('');
   let dynamicURL = window.location.origin.includes('staging') ? 'https://staging.newfi.com/' : 'https://newfi.com/';
   const API_URL = dynamicURL || 'https://staging.newfi.com/';
 
@@ -169,7 +170,8 @@ function RefinaceForm(data) {
       setAllFieldValid(false);
       saveUserDetailsWp();
       const phoneNumberValue = phoneNumber.replace(/\D/g, "");
-      apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
+      // apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
+        axios.post(`${API_URL}wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
         const result = response.data.resultObject;
         const error = response.data.error;
         if (!error) {
@@ -240,7 +242,8 @@ function RefinaceForm(data) {
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
     //api call create lead : rest/leadSource/newfiWebsiteLeadDetails
-    apiService.post('/rest/leadSource/newfiWebsiteLeadDetails', reqData, { headers: { 'Content-Type': 'multipart/form-data', }, cache: 'no-cache' }).then((response) => {
+    // apiService.post('/rest/leadSource/newfiWebsiteLeadDetails', reqData, { headers: { 'Content-Type': 'multipart/form-data', }, cache: 'no-cache' }).then((response) => {
+      axios.post(`${API_URL}wp-json/newfi/v1/saveLeadDetails?client_id=${uid}`, reqData).then((response) => {
       let data = response.data;
       let loanTypeCd = LoanAppFormVO.loanType.loanTypeCd;
       if (data.resultObject !== null && data.resultObject !== "Failure") {
@@ -328,8 +331,9 @@ function RefinaceForm(data) {
     };
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
-    axios.post('https://newfi.com/wp-json/newfi/v1/submitData', reqData)
+    axios.post(`${API_URL}wp-json/newfi/v1/submitData`, reqData)
     .then(response => {
+      setUid(response.data);
       // console.log('success');
     })
     .catch(error => {
@@ -432,7 +436,7 @@ function RefinaceForm(data) {
         </div>
 
         {
-          (allfieldValid || isOtpEnabled) && <OtpForm key={otpKey} isExpired={isOtpEnabled} formData={formData} onValueChange={enableSubmitButton} />
+          (allfieldValid || isOtpEnabled) && <OtpForm key={otpKey} isExpired={isOtpEnabled} cId={uid} formData={formData} onValueChange={enableSubmitButton} />
         }
         {respErrorMsg && <div className="nf-error-common">{respErrorMsg}</div>}
         <div className="flex alignC gap15 mT40 justifyC">

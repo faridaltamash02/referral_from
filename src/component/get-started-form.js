@@ -51,7 +51,7 @@ function GetStartedForm() {
     //   }
     // }).catch(error => { console.error('There was an error!', error); });
     //https://staging.newfi.com/
-    fetch(`${API_URL}/wp-json/proxy/v1/approved_states`)
+    fetch(`${API_URL}wp-json/proxy/v1/approved_states`)
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -192,7 +192,7 @@ function GetStartedForm() {
       const phoneNumberValue = phoneNumber.replace(/\D/g, "");
       //submitEmailPhone
       //axios.post(`http://localhost/wordpress/wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
-        axios.post(`${API_URL}/wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
+        axios.post(`${API_URL}wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
         console.log(response);
         const result = response.data.resultObject;
         const error = response.data.error;
@@ -295,7 +295,7 @@ function GetStartedForm() {
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
     //api call create lead : rest/leadSource/newfiWebsiteLeadDetails
     //apiService.post('/rest/leadSource/newfiWebsiteLeadDetails', reqData, { headers: { 'Content-Type': 'multipart/form-data', }, cache: 'no-cache' }).then((response) => {
-      axios.post(`http://localhost/wordpress/wp-json/newfi/v1/saveLeadDetails?client_id=${uid}`, reqData).then((response) => {
+      axios.post(`${API_URL}wp-json/newfi/v1/saveLeadDetails?client_id=${uid}`, reqData).then((response) => {
       let data = response.data;
       let loanTypeCd = LoanAppFormVO.loanType.loanTypeCd;
       if (data.resultObject !== null && data.resultObject !== "Failure") {
@@ -396,7 +396,7 @@ function GetStartedForm() {
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
     //axios.post('https://staging.newfi.com/wp-json/newfi/v1/submitData', reqData)
-    axios.post('http://localhost/wordpress/wp-json/newfi/v1/submitData', reqData)
+   axios.post(`${API_URL}wp-json/newfi/v1/submitData`, reqData)
     .then(response => {
       setUid(response.data);
       // console.log('success');

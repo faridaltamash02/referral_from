@@ -24,7 +24,6 @@ const Dashboard = () => {
     setIsModalOpen(false);
   };
   const openLeadModal = (row) =>{
-    console.log(3242);
     setUser(row);
     setIsLeadDialogOpen(true)
   }
@@ -61,7 +60,7 @@ const Dashboard = () => {
               <th className='createdat'>Created At</th>
               <th className='location'>Location</th>
               <th className='url'>URL</th>
-              <th className='otpstatus'>OPT Status</th>
+              <th className='otpstatus'>OTP Status</th>
               <th className='crm_id'>CRM ID</th>
               <th className='utmsource'>UTM Source</th>
               <th>UTM Medium</th>
@@ -89,7 +88,7 @@ const Dashboard = () => {
               {row.email_id}
                 </a>
             </td>
-            <td>{util.formatDate(row.created_at)}</td>
+            <td className='whiteS'>{util.formatDate(row.created_at)}</td>
             <td>
               { (row.city || row.state || row.country) ? 
                 (row.city ? row.city + ', ' : '') + 
@@ -103,7 +102,7 @@ const Dashboard = () => {
               </a>
             </td>
             <td className='whiteS'>{row.otp_status === '1' ? 'Verified' : 'Not Verified'}</td>
-            <td>{row.crm_id || 'N/A'}</td>
+            <td className='whiteS'>{row.crm_id || 'N/A'}</td>
             <td>{row.utm_source || 'N/A'}</td>
             <td>{row.utm_medium || 'N/A'}</td>
             <td>{row.utm_campaign || 'N/A'}</td>

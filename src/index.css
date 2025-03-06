@@ -633,7 +633,7 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 .modal-overlay .modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   border-bottom: 1px solid #e3e1e1;
   padding-bottom: 10px;
   margin-bottom: 10px;
@@ -641,15 +641,16 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 
 .modal-overlay .modal-header h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
   color: #333;
+  line-height: 26px;
 }
 
 .modal-overlay .close-btn {
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: 34px;
   cursor: pointer;
   color: #888;
 }
@@ -754,13 +755,17 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
   font-weight: bold;
   color: #333;
 }
-.ok-btn.round{border-radius: 50px;}
-  .createlead .user-info {
-    margin-top: 10px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
+.ok-btn.round{
+  border-radius: 50px !important;
+  height: 44px;
+  width: 100px;
+}
+.createlead .user-info {
+  margin-top: 10px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 }
 
 .createlead .user-info p {
@@ -770,6 +775,9 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
   align-items: center;
   gap: 10px;
   color:#0A4598;
+}
+.createlead.modal-overlay .modal {
+  max-width: 600px;
 }
 
 

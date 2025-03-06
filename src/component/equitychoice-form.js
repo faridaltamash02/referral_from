@@ -33,7 +33,7 @@ function EquityChoiceForm() {
   const [stateList, setStateList] = useState([]);
   const [lat, setlat] = useState('');
   const [lon, setlon] = useState('');
-
+  const [uid, setUid] = useState('');
   const constants = new CommonConstants();
   let dynamicURL = window.location.origin.includes('staging') ? 'https://staging.newfi.com/' : 'https://newfi.com/';
   const API_URL = dynamicURL || 'https://staging.newfi.com/';
@@ -181,7 +181,8 @@ function EquityChoiceForm() {
         saveUserDetailsWp();
         const phoneNumberValue = phoneNumber.replace(/\D/g, "");
         // ${baseurl}/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${email}$
-        apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}&loanType=REFNSAM`, {}).then((response) => {
+        // apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}&loanType=REFNSAM`, {}).then((response) => {
+          axios.post(`${API_URL}wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
           const result = response.data.resultObject;
           const error = response.data.error;
           if (!error) {
@@ -269,7 +270,8 @@ function EquityChoiceForm() {
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
     //api call create lead : rest/leadSource/newfiWebsiteLeadDetails
-    apiService.post('/rest/leadSource/newfiWebsiteLeadDetails', reqData, { headers: { 'Content-Type': 'multipart/form-data', }, cache: 'no-cache' }).then((response) => {
+    // apiService.post('/rest/leadSource/newfiWebsiteLeadDetails', reqData, { headers: { 'Content-Type': 'multipart/form-data', }, cache: 'no-cache' }).then((response) => {
+      axios.post(`${API_URL}wp-json/newfi/v1/saveLeadDetails?client_id=${uid}`, reqData).then((response) => {
       let data = response.data;
       if (data.resultObject !== null && data.resultObject !== "Failure") {
         let envUrl = data.resultObject.url.replace(/(loancenter\/)/, '');
@@ -327,8 +329,9 @@ function EquityChoiceForm() {
     };
     let reqData = new FormData();
     reqData.append('newfiWebsiteLeadDetails', JSON.stringify(LoanAppFormVO));
-    axios.post('https://staging.newfi.com/wp-json/newfi/v1/submitData', reqData)
+    axios.post(`${API_URL}wp-json/newfi/v1/submitData`, reqData)
     .then(response => {
+      setUid(response.data);
       // console.log('success');
     })
     .catch(error => {

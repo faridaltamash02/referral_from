@@ -74,7 +74,7 @@ function OtpForm({onValueChange, formData, isExpired, cId}) {
     if (allFieldPresent) {
       
       // apiService.post(`/rest/leadSource/send_otp?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then((response) => {
-      axios.post(`http://localhost/wordpress/wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
+      axios.post(`${API_URL}wp-json/newfi/v1/submitEmailPhone?recipientPhoneNumber=${phoneNumberValue}&emailId=${emailId}`, {}).then(response => {
         if (!response.data.error) {
           if (response.data.resultObject.otpStatus.toLowerCase() == 'delivered' || response.resultObject.resultObject.toLowerCase() == "success") {
             setIsVerifyBtnDisabled(false);
@@ -108,7 +108,7 @@ function OtpForm({onValueChange, formData, isExpired, cId}) {
     //rest/leadSource/verifyOtp?phoneNumber=${phoneNumber}&otp=${otpVal}`
     
     //apiService.post(`/rest/leadSource/verifyOtp?phoneNumber=${phoneNumberValue}&otp=${otpValue.verification}`).then((response) => {
-    axios.post(`http://localhost/wordpress/wp-json/newfi/v1/validatUser?phoneNumber=${phoneNumberValue}&code=${otpValue.verification}&client_id=${cId}`, {}).then(response => {
+    axios.post(`${API_URL}wp-json/newfi/v1/validatUser?phoneNumber=${phoneNumberValue}&code=${otpValue.verification}&client_id=${cId}`, {}).then(response => {
       if(!response.data.error){
         clearInterval(intervalRef.current);
         onValueChange(true, otpValue.verification);
