@@ -779,5 +779,5 @@ select.nf-select.nf-form-select:has(option[value=""]:checked) {
 .createlead.modal-overlay .modal {
   max-width: 600px;
 }
-
+.message{font-size: 16px; color:#0A4598; font-weight: 700;}
 

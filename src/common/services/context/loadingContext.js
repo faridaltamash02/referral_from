@@ -9,6 +9,7 @@ export const LoaderProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   const showLoader = () => {
+    console.count('showLoader');
     setLoading((prevLoading) => {
       if (!prevLoading) {
         return true; // Set to true only if it was previously false

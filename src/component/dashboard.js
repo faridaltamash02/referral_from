@@ -28,6 +28,18 @@ const Dashboard = () => {
     setIsLeadDialogOpen(true)
   }
   const closeLeadDialog = () => setIsLeadDialogOpen(false);
+
+  const handleLeadCreated = (phoneNumber, email, crmId) => {
+    console.log('Lead created');
+    
+    const updatedUsers = userLists.map((user) => 
+      user.phone_number === phoneNumber && user.email_id === email
+        ? { ...user, crmId: crmId } // Update crmId if phone & email match
+        : user
+    );
+  
+    setUserLists(updatedUsers);
+  };
   useEffect(() => {
     //getUsers
     fetch('https://staging.newfi.com/wp-json/newfi/v1/getUsers')
@@ -125,9 +137,9 @@ const Dashboard = () => {
       </tbody>
     </table>
     <DeleteInfoDialog isOpen={isModalOpen} onClose={closeModal} />
-    <CreateLeadDialog userDetail={user} isOpen={isLeadDialogOpen} onClose={closeLeadDialog} />
+    <CreateLeadDialog userDetail={user} isOpen={isLeadDialogOpen} onClose={closeLeadDialog} onLeadCreated={handleLeadCreated}/>
   </div>
-    <p className='deleteInfo'>*User details will be permanently deleted 15 days after the date of creation.</p>
+    <p className='deleteInfo'>*User details will be permanently deleted 5 days after the date of creation.</p>
   </div>
    
   

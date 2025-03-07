@@ -1,8 +1,9 @@
   import React, { useState } from 'react';
   import apiService from '../services/apiService';
   import axios from 'axios';
-  const CreateLeadDialog = ({ isOpen, onClose, userDetail }) => {
+  const CreateLeadDialog = ({ isOpen, onClose, userDetail, onLeadCreated }) => {
     const [loanType, setLoanType] = useState();
+    const [message, setMessage] = useState('');
    
     let dynamicURL = window.location.origin.includes('staging') ? 'https://staging.newfi.com/' : 'https://newfi.com/';
     const API_URL = dynamicURL || 'https://staging.newfi.com/';
@@ -25,53 +26,64 @@
         loanPurpose: loanType,
         createdBy: createdBy
       }
- 
+
       apiService.post('rest/crm/createDashboardLead', JSON.stringify(reqObj), { headers: { 'Content-Type': 'application/json', }, cache: 'no-cache' }).then((response) => {
         if (response.data.resultObject !== null && response.data.resultObject !== "Failure") {
           let envUrl = API_URL;
           let crmId = response.data.resultObject;
 
-          if (crmId) {
-    //         $email = $request->get_param('email');
-    // $phone_number = $request->get_param('phoneNumber');
-    // $crm_id = $request->get_param('crmId');
-      axios.post(`${API_URL}wp-json/newfi/v1/updateLeadInfo?phoneNumber=${userDetail.phone_number}&email=${userDetail.email_id}&crmId=${crmId}`, {}).then(response => {
-          console.log(response);
-        }).catch(error => {
-          console.log(error);
-        });
-            window.setTimeout(() => {
-              if (loanType == 'PUR') {
-                    window.location.href = envUrl + "preapproval/#/" + response.data.resultObject + "/";
-                  } else if (loanType == 'REFNSAM') {
-                    window.location.href = envUrl + "equitychoice/#/" + response.data.resultObject + "/";
-                  } else {
-                    window.location.href = envUrl + "savings/#/" + response.data.resultObject + "/";
-                  }
-              // if (response.data.resultObject.duplicateAccount == true && (response.data.resultObject.duplicateLead != undefined && response.data.resultObject.duplicateLead == true)) {
-              //   window.location.href = response.data.resultObject.url;
-              // } else if ((response.data.resultObject.duplicateLead != undefined && response.data.resultObject.duplicateLead == true) && response.data.resultObject.duplicateAccount == false) {
-              //   if (loanType == 'PUR') {
-              //     window.location.href = envUrl + "preapproval/#/" + response.data.resultObject + "/";
-              //   } else if (loanType == 'REFNSAM') {
-              //     window.location.href = envUrl + "equitychoice/#/" + response.data.resultObject + "/";
-              //   } else {
-              //     window.location.href = envUrl + "savings/#/" + response.data.resultObject + "/";
-              //   }
-              // }
-            }, 5000);
-          } else if (response.data.error) {
-            let redirectUrl;
-            if(response.data.error.message.includes('duplicate')){
-              // 404
-              console.log('duplicate');
-             // redirectUrl = envUrl + "404";
+          if (crmId === "ERROR") {
+            if (response.data.error) {
+              if (response.data.error.message.includes('duplicate') && crmId === "ERROR") {
+                // Show message in UI duplicate lead and close after 5 seconds
+                console.log('Duplicate lead');
+                setMessage('Duplicate lead');
+                setTimeout(() => {
+                  setMessage('');
+
+                  onClose();
+
+                }, 5000); // Close modal after 5 seconds
+              }
+            } else {
+              // Update UI to show error message
+              setMessage('Error creating lead');
+              console.log('Error creating lead');
             }
-            window.location.href = redirectUrl;
+            setTimeout(() => {
+              setMessage('');
+
+              onClose();
+
+            }, 5000);
+
           } else {
-            //404
-            //redirectUrl = envUrl + "404";
+            axios.post(`${API_URL}wp-json/newfi/v1/updateLeadInfo?phoneNumber=${userDetail.phone_number}&email=${userDetail.email_id}&crmId=${crmId}`, {}).then(response => {
+              console.log(response);
+            }).catch(error => {
+              console.log(error);
+            });
+            if (response.status === 200) {
+              setMessage('Lead created successfully with CRM ID: ' + crmId);
+              console.log('Lead created successfully');
+              onLeadCreated(userDetail.phone_number, userDetail.email_id, crmId);
+              setTimeout(() => {
+                setMessage('');
+
+                onClose();
+
+              }, 5000);
+            } else {
+              setMessage('Lead creation failed');
+              setTimeout(() => {
+                setMessage('');
+
+                onClose();
+              }, 5000);
+            }
+
           }
+
         }
       })
     }
@@ -79,7 +91,11 @@
       <div className="modal-overlay createlead">
         <div className="modal">
           <div className="modal-header">
+          {message ? (
+            <h2>Info</h2>
+          ) : (
           <h2>What goal best describes your purpose for the financing?</h2>
+          )}
           {/* {userInfo && (
             <div className="user-info">
               <p><strong>Name:</strong> {userInfo.name}</p>
@@ -92,6 +108,9 @@
           </div>
           <div className="modal-body">
             {/* <h2 className='body-head'>What goal best describes your purpose for the financing?</h2> */}
+            {message ? (
+            <div className="message">{message}</div>
+          ) : (
             <div className="flexC flexW gap15 mT20">
               <div className="nf-checklist-item">
                 <input
@@ -133,11 +152,13 @@
                 </label>
               </div>
             </div>
+          )}
           </div>
         
-          <div className="modal-footer">
+          {!message && ( <div className="modal-footer">
             <button className="ok-btn round" disabled={!loanType} onClick={createLead}>Submit</button>
           </div>
+          )}
         </div>
       </div>
     );
